@@ -33,37 +33,30 @@ export const Purchase = () => {
   };
 
   return (
-    <section id="purchase" className="py-32 bg-white relative overflow-hidden">
-      {/* Background Gradients */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-100/50 rounded-full blur-[150px] -z-10" />
-
+    <section id="purchase" className="py-24 bg-slate-900 text-white relative">
       <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
-          className="space-y-8"
+          className="space-y-6 text-left"
         >
-          <span className="inline-block py-1 px-3 rounded-full bg-rose-50 text-rose-500 text-sm font-semibold tracking-widest uppercase mb-4 border border-rose-100">
-            Limited Offer
+          <span className="inline-block py-1.5 px-3 bg-green-400 text-slate-900 text-xs font-bold uppercase tracking-widest rounded-full mb-4">
+            Special Offer
           </span>
-          <h2 className="text-5xl md:text-6xl font-black text-slate-900 leading-tight tracking-tight">
-            Start Your Journey <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-rose-500">
-              Today.
-            </span>
+          <h2 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-[0.9]">
+            Unlimited<br/>
+            Access<br/>
+            Pass
           </h2>
-          <p className="text-xl text-slate-600 font-light leading-relaxed">
-            Get instant access to the complete masterclass. 
-            Stream anytime, anywhere, on any device.
+          <p className="text-xl md:text-2xl text-slate-400 font-medium max-w-lg leading-snug">
+            Get instant access to the complete masterclass. Stream anytime, anywhere, on any device.
           </p>
           
-          <ul className="space-y-4 text-slate-700">
-            {['Lifetime Access', 'Full HD Video Quality', 'Mobile Friendly', 'Money Back Guarantee'].map((item, i) => (
+          <ul className="space-y-3 mt-8 text-slate-300 font-medium">
+            {['1500+ Online Classes', '10+ Beginner Programs', '150+ Top Instructors'].map((item, i) => (
               <li key={i} className="flex items-center gap-3">
-                <div className="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
-                </div>
+                <div className="w-5 h-5 bg-blue-600 flex items-center justify-center rounded-full text-white text-xs font-bold">✓</div>
                 {item}
               </li>
             ))}
@@ -74,25 +67,21 @@ export const Purchase = () => {
           initial={{ opacity: 0, x: 50 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
-          className="relative bg-white border border-slate-100 rounded-3xl p-8 md:p-12 shadow-2xl space-y-8"
+          className="bg-slate-800 p-10 rounded-3xl border border-white/5 shadow-2xl relative overflow-hidden text-center"
         >
-          <div className="absolute top-0 right-0 p-4">
-             <div className="bg-gradient-to-r from-orange-500 to-rose-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg transform rotate-12 origin-bottom-left">
-               BEST VALUE
-             </div>
-          </div>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500 blur-[100px] opacity-20 pointer-events-none" />
           
-          <div className="text-center">
-            <p className="text-slate-500 uppercase tracking-widest text-sm mb-2">One-time Payment</p>
+          <div className="mb-8">
+            <p className="text-slate-500 uppercase tracking-widest text-xs font-bold mb-2">One-time Payment</p>
             <div className="flex items-baseline justify-center gap-2">
-              <span className="text-6xl font-black text-slate-900">$49</span>
-              <span className="text-slate-400 text-xl line-through">$99</span>
+              <span className="text-7xl font-black text-white tracking-tighter">₪180</span>
+              <span className="text-slate-500 text-2xl line-through font-bold decoration-2 decoration-red-500">₪360</span>
             </div>
           </div>
 
-          <form onSubmit={handlePurchase} className="space-y-6">
-            <div className="space-y-2">
-              <label htmlFor="email" className="block text-sm font-medium text-slate-600 ml-1">Email Address</label>
+          <form onSubmit={handlePurchase} className="space-y-4">
+            <div className="space-y-1 text-left">
+              <label htmlFor="email" className="block text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Email Address</label>
               <input
                 id="email"
                 type="email"
@@ -100,7 +89,7 @@ export const Purchase = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all hover:bg-white"
+                className="w-full px-5 py-4 bg-slate-700 border border-slate-600 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors rounded-xl font-medium"
               />
             </div>
 
@@ -108,7 +97,7 @@ export const Purchase = () => {
               <motion.div 
                 initial={{ opacity: 0, y: -10 }} 
                 animate={{ opacity: 1, y: 0 }}
-                className="p-3 bg-red-50 border border-red-100 rounded-lg text-red-600 text-sm text-center"
+                className="p-3 bg-red-900/20 border border-red-500/20 text-red-400 text-xs font-bold uppercase tracking-wide text-center rounded-lg"
               >
                 {error}
               </motion.div>
@@ -118,29 +107,23 @@ export const Purchase = () => {
               <motion.div 
                 initial={{ opacity: 0, y: -10 }} 
                 animate={{ opacity: 1, y: 0 }}
-                className="p-3 bg-green-50 border border-green-100 rounded-lg text-green-600 text-sm text-center"
+                className="p-3 bg-green-900/20 border border-green-500/20 text-green-400 text-xs font-bold uppercase tracking-wide text-center rounded-lg"
               >
-                Redirecting to secure checkout...
+                Redirecting to payment...
               </motion.div>
             )}
 
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+            <button
               disabled={loading}
-              className="w-full py-4 bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 text-white font-bold rounded-xl text-lg shadow-lg shadow-orange-500/20 transition-all flex items-center justify-center gap-3 group relative overflow-hidden"
+              className="w-full py-5 bg-blue-600 hover:bg-blue-700 text-white font-black text-lg transition-all transform hover:-translate-y-1 shadow-lg rounded-xl flex items-center justify-center gap-3 relative overflow-hidden group"
             >
-              <span className="relative z-10">{loading ? 'Processing...' : 'Get Access Now'}</span>
+              <span className="relative z-10">{loading ? 'Processing...' : 'Get Started'}</span>
               {loading && <Loader2 className="w-5 h-5 animate-spin relative z-10" />}
-            </motion.button>
+            </button>
           </form>
           
-          <div className="flex items-center justify-center gap-4 pt-4 border-t border-slate-100 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
-             <div className="text-xs text-slate-500 flex gap-2">
-               <span>🔒 Secure SSL Encryption</span>
-               <span>•</span>
-               <span>💳 All Major Cards Accepted</span>
-             </div>
+          <div className="mt-6 flex justify-center gap-4 opacity-50 grayscale hover:grayscale-0 transition-all duration-300">
+             <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Secure Payment</span>
           </div>
         </motion.div>
       </div>

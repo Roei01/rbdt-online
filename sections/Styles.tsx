@@ -2,48 +2,82 @@
 import { motion } from 'framer-motion';
 
 const Styles = () => {
+  const categories = [
+    { 
+      name: 'Freestyle', 
+      image: 'https://images.unsplash.com/photo-1547153760-18fc86324498?q=80&w=1000', 
+    },
+    { 
+      name: 'Hip Hop', 
+      image: 'https://images.unsplash.com/photo-1545959570-a92672efaf69?q=80&w=1000', 
+    },
+    { 
+      name: 'Contemporary', 
+      image: 'https://images.unsplash.com/photo-1518834107812-67b0b7c58434?q=80&w=1000', 
+    },
+    { 
+      name: 'Breaking', 
+      image: 'https://images.unsplash.com/photo-1524593689594-aae2f26b75ab?q=80&w=1000', 
+    },
+    { 
+      name: 'Popping', 
+      image: 'https://images.unsplash.com/photo-1616428787766-3d2b270b213c?q=80&w=1000', 
+    },
+    { 
+      name: 'K-Pop', 
+      image: 'https://images.unsplash.com/photo-1627483262268-9c96d8a36896?q=80&w=1000', 
+    },
+    { 
+      name: 'Jazz Funk', 
+      image: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1000', 
+    },
+    { 
+      name: 'Ballet', 
+      image: 'https://images.unsplash.com/photo-1519925610903-38106302d58d?q=80&w=1000', 
+    },
+  ];
+
   return (
-    <section id="styles" className="py-24 bg-white overflow-hidden relative">
-      <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <section id="styles" className="py-24 bg-slate-50 relative overflow-hidden text-slate-900">
+      <div className="max-w-7xl mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="lg:col-span-4 text-center mb-12"
+          className="mb-12 text-center"
         >
-          <span className="text-orange-500 font-bold uppercase tracking-widest text-sm mb-2 block">Curriculum</span>
-          <h2 className="text-4xl md:text-5xl font-black text-slate-900">What You'll Master</h2>
+          <h2 className="text-4xl md:text-5xl font-black mb-4 leading-none text-slate-900">
+            Learn A Variety<br/> of Dance Styles
+          </h2>
+          <p className="text-xl text-slate-600 max-w-2xl mx-auto font-medium">
+            Master the fundamentals and advanced techniques across multiple genres.
+          </p>
         </motion.div>
 
-        {[
-          { name: 'Salsa', desc: 'Rhythm & Flow', color: 'from-orange-400 to-red-400', img: 'https://images.unsplash.com/photo-1516708754805-728b248a8677?q=80&w=1000' },
-          { name: 'Bachata', desc: 'Sensuality & Connection', color: 'from-rose-400 to-pink-400', img: 'https://images.unsplash.com/photo-1545696968-1a5245650b91?q=80&w=1000' },
-          { name: 'Technique', desc: 'Body Isolation', color: 'from-amber-400 to-orange-400', img: 'https://images.unsplash.com/photo-1535525153412-5a42439a210d?q=80&w=1000' },
-          { name: 'Styling', desc: 'Musicality & Expression', color: 'from-teal-400 to-cyan-400', img: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?q=80&w=1000' },
-        ].map((style, i) => (
-          <motion.div
-            key={style.name}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.1 }}
-            className="group relative h-96 rounded-3xl overflow-hidden cursor-pointer shadow-xl hover:shadow-2xl transition-shadow duration-500"
-          >
-            <div className={`absolute inset-0 bg-gradient-to-b ${style.color} opacity-0 group-hover:opacity-90 transition-opacity duration-500 z-10`} />
-            <div 
-              className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-              style={{ backgroundImage: `url(${style.img})` }}
-            />
-            <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500 z-0" />
-            
-            <div className="absolute bottom-0 left-0 p-8 z-20 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-              <h3 className="text-3xl font-bold text-white mb-1 drop-shadow-md">{style.name}</h3>
-              <p className="text-white font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100 transform translate-y-4 group-hover:translate-y-0">
-                {style.desc}
-              </p>
-            </div>
-          </motion.div>
-        ))}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {categories.map((style, i) => (
+            <motion.div
+              key={style.name}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.05 }}
+              className="group cursor-pointer flex flex-col items-center"
+            >
+              <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform group-hover:-translate-y-1 bg-white">
+                <div 
+                  className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
+                  style={{ backgroundImage: `url(${style.image})` }}
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+              </div>
+              
+              <h3 className="mt-4 text-sm md:text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors tracking-wide text-center">
+                {style.name}
+              </h3>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   );
