@@ -1,0 +1,47 @@
+import dotenv from 'dotenv';
+import path from 'path';
+import { z } from 'zod';
+
+// Load environment variables from .env file
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
+
+const envSchema = z.object({
+  DATABASE_URL: z.string().url(),
+  GREENINVOICE_API_KEY: z.string().optional(), // Optional for now as user might not have one immediately
+  GREENINVOICE_API_URL: z.string().url().default('https://sandbox.greeninvoice.co.il/api/v1'),
+  EMAIL_HOST: z.string().min(1),
+  EMAIL_PORT: z.string().transform((val) => parseInt(val, 10)),
+  EMAIL_USER: z.string().optional(),
+  EMAIL_PASS: z.string().optional(),
+  JWT_SECRET: z.string().min(8),
+  VIDEO_SECRET_TOKEN: z.string().min(8),
+  APP_BASE_URL: z.string().url().default('http://localhost:3000'),
+  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  PORT: z.string().optional().default('3000').transform((val) => parseInt(val, 10)),
+});
+
+const env = envSchema.safeParse(process.env);
+
+if (!env.success) {
+  console.error('❌ Invalid environment variables:', JSON.stringify(env.error.format(), null, 2));
+  process.exit(1);
+}
+
+export const config = {
+  dbUri: env.data.DATABASE_URL,
+  jwtSecret: env.data.JWT_SECRET,
+  videoSecret: env.data.VIDEO_SECRET_TOKEN,
+  greenInvoice: {
+    key: env.data.GREENINVOICE_API_KEY,
+    url: env.data.GREENINVOICE_API_URL,
+  },
+  email: {
+    host: env.data.EMAIL_HOST,
+    port: env.data.EMAIL_PORT,
+    user: env.data.EMAIL_USER,
+    pass: env.data.EMAIL_PASS,
+  },
+  appUrl: env.data.APP_BASE_URL,
+  isProduction: env.data.NODE_ENV === 'production',
+  port: env.data.PORT,
+};
