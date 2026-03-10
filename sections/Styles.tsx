@@ -1,14 +1,18 @@
 "use client";
 import { motion } from "framer-motion";
+import Image from "next/image";
+import { useState } from "react";
+import modernDanceImage from "../server/assets/IMG_5427.png";
 
 const Styles = () => {
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const categories = [
     {
       name: "Modern Dance",
-      image:
-        "https://images.unsplash.com/photo-1518834107812-67b0b7c58434?q=80&w=1000",
+      image: modernDanceImage.src,
       description: "Expression, flow, technique, and emotional movement.",
       featured: true,
+      previewVideo: "/api/video/preview",
     },
     {
       name: "Freestyle",
@@ -60,21 +64,34 @@ const Styles = () => {
               transition={{ delay: i * 0.05 }}
               className="group flex flex-col items-center"
             >
-              <div
+              <button
+                type="button"
+                onClick={() => {
+                  if (style.previewVideo) {
+                    setIsPreviewOpen(true);
+                  }
+                }}
                 className={`relative w-full aspect-[4/3] rounded-2xl overflow-hidden transition-all duration-300 transform group-hover:-translate-y-1 bg-white ${
                   style.featured
-                    ? "ring-2 ring-blue-500 shadow-xl md:col-span-2"
+                    ? "ring-2 ring-blue-500 shadow-xl md:col-span-2 cursor-pointer"
                     : "shadow-sm hover:shadow-xl"
                 }`}
               >
                 <div
-                  className={`absolute inset-0 bg-cover bg-center transition-transform duration-500 ${
-                    style.muted
-                      ? "scale-100 grayscale opacity-55"
-                      : "group-hover:scale-105"
+                  className={`absolute inset-0 ${
+                    style.muted ? "opacity-55 grayscale" : "opacity-100"
                   }`}
-                  style={{ backgroundImage: `url(${style.image})` }}
-                />
+                >
+                  <Image
+                    src={style.image}
+                    alt={style.name}
+                    fill
+                    className={`object-cover transition-transform duration-500 ${
+                      style.muted ? "scale-100" : "group-hover:scale-105"
+                    }`}
+                    sizes="(max-width: 768px) 50vw, 25vw"
+                  />
+                </div>
                 <div
                   className={`absolute inset-0 transition-colors duration-300 ${
                     style.featured
@@ -96,7 +113,14 @@ const Styles = () => {
                     Featured
                   </div>
                 )}
-              </div>
+                {style.previewVideo && (
+                  <div className="absolute inset-x-0 bottom-4 flex justify-center">
+                    <span className="rounded-full bg-white/90 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-slate-900 shadow-lg backdrop-blur">
+                      Play Preview
+                    </span>
+                  </div>
+                )}
+              </button>
 
               <h3
                 className={`mt-4 text-sm md:text-base font-bold transition-colors tracking-wide text-center ${
@@ -118,6 +142,36 @@ const Styles = () => {
           ))}
         </div>
       </div>
+
+      {isPreviewOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 px-6 py-10 backdrop-blur-sm"
+          onClick={() => setIsPreviewOpen(false)}
+        >
+          <div
+            className="relative w-full max-w-4xl overflow-hidden rounded-3xl bg-black shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setIsPreviewOpen(false)}
+              className="absolute right-4 top-4 z-10 rounded-full bg-white/90 px-3 py-1 text-sm font-bold text-slate-900 shadow-lg"
+            >
+              Close
+            </button>
+            <video
+              className="h-full w-full"
+              controls
+              autoPlay
+              playsInline
+              poster={modernDanceImage.src}
+            >
+              <source src="/api/video/preview" type="video/quicktime" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        </div>
+      )}
     </section>
   );
 };
