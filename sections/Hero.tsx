@@ -52,6 +52,47 @@ export const Hero = () => {
           </motion.p>
 
           <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45, duration: 0.8 }}
+            className="rounded-[2rem] border border-white/80 bg-white/80 p-5 shadow-[0_20px_50px_rgba(15,23,42,0.08)] backdrop-blur"
+          >
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="max-w-xl">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-500">
+                  Preview Lesson
+                </p>
+                <h3 className="mt-2 text-2xl font-black text-slate-900">
+                  Watch a short preview from the full tutorial
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600 md:text-base">
+                  This video is a short summary from the full learning experience.
+                  If you like the style, flow, and teaching approach, you can click
+                  <span className="font-bold text-slate-900"> Buy Now </span>
+                  to unlock the complete tutorial.
+                </p>
+              </div>
+              <div className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
+                Short Preview
+              </div>
+            </div>
+
+            <div className="mt-5 overflow-hidden rounded-[1.5rem] border border-slate-200 bg-slate-950 shadow-lg">
+              <video
+                className="aspect-video w-full object-cover"
+                controls
+                playsInline
+                preload="metadata"
+                controlsList="nodownload noplaybackrate"
+                onContextMenu={(e) => e.preventDefault()}
+              >
+                <source src="/api/video/preview" type="video/quicktime" />
+                Your browser does not support the preview video.
+              </video>
+            </div>
+          </motion.div>
+
+          <motion.div
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.8 }}
