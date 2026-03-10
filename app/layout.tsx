@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Rubik, Heebo } from "next/font/google";
-import { AppProviders } from "@/components/providers/AppProviders";
 import "./globals.css";
+import Providers from "./providers";
 
-const rubik = Rubik({ 
+const rubik = Rubik({
   subsets: ["latin"],
   variable: "--font-sans",
 });
@@ -20,13 +20,17 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en" dir="ltr" className={`${rubik.variable} ${heebo.variable} scroll-smooth`}>
+    <html
+      lang="en"
+      dir="ltr"
+      className={`${rubik.variable} ${heebo.variable} scroll-smooth`}
+    >
       <body className="font-sans bg-white text-slate-900">
-        <AppProviders>{children}</AppProviders>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
