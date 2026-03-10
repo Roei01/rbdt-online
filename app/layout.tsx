@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Rubik, Heebo } from "next/font/google";
+import { AppProviders } from "@/components/providers/AppProviders";
 import "./globals.css";
 
 const rubik = Rubik({ 
@@ -24,7 +25,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" dir="ltr" className={`${rubik.variable} ${heebo.variable} scroll-smooth`}>
-      <body className="font-sans bg-white text-slate-900">{children}</body>
+      <body className="font-sans bg-white text-slate-900">
+        <AppProviders>{children}</AppProviders>
+      </body>
     </html>
   );
 }

@@ -1,34 +1,67 @@
 'use client';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
-import axios from 'axios';
+import { Loader2, ShieldCheck, Smartphone, BadgeDollarSign } from 'lucide-react';
+import { api, getApiErrorCode, isNetworkError } from '@/lib/api-client';
+import { PaymentErrorCard } from '@/components/errors/PaymentErrorCard';
+import { DEFAULT_VIDEO_FEATURES, DEFAULT_VIDEO_PRICE_ILS } from '@/lib/catalog';
+
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const faqItems = [
+  {
+    question: 'How do I access the video?',
+    answer: 'After payment, you will receive an email with your login details and a secure access link.',
+  },
+  {
+    question: 'Can I watch on mobile?',
+    answer: 'Yes. The player is fully responsive and works across mobile, tablet, and desktop devices.',
+  },
+  {
+    question: 'What happens after purchase?',
+    answer: 'Your payment is confirmed, your access credentials are prepared, and your login email is sent automatically.',
+  },
+] as const;
 
 export const Purchase = () => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
+  const [statusMessage, setStatusMessage] = useState('');
 
   const handlePurchase = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
+    setStatusMessage('');
+
+    if (!emailPattern.test(email.trim())) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+
+    setLoading(true);
+    setStatusMessage('Preparing secure payment...');
 
     try {
-      const response = await axios.post('/api/purchase/create', {
-        email,
+      const response = await api.post('/purchase/create', {
+        email: email.trim(),
       });
 
       if (response.data.checkoutUrl) {
         window.location.href = response.data.checkoutUrl;
-      } else {
-        setSuccess(true);
       }
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Something went wrong. Please try again.');
+    } catch (error: unknown) {
+      const code = getApiErrorCode(error);
+
+      if (code === 'ALREADY_OWNED') {
+        setError('You already own this tutorial. Check your email for access.');
+      } else if (isNetworkError(error)) {
+        setError('Unable to start payment. Please try again.');
+      } else {
+        setError('Unable to start payment. Please try again.');
+      }
     } finally {
       setLoading(false);
+      setStatusMessage('');
     }
   };
 
@@ -58,13 +91,28 @@ export const Purchase = () => {
           </p>
           
           <ul className="mt-8 space-y-3 font-medium text-slate-600">
-            {['1500+ Online Classes', '10+ Beginner Programs', '150+ Top Instructors'].map((item, i) => (
+            {DEFAULT_VIDEO_FEATURES.map((item, i) => (
               <li key={i} className="flex items-center gap-3">
                 <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white shadow-md">✓</div>
                 {item}
               </li>
             ))}
           </ul>
+
+          <div className="grid gap-4 pt-6 sm:grid-cols-3">
+            <div className="rounded-2xl border border-white/80 bg-white/80 p-4 shadow-sm">
+              <ShieldCheck className="h-5 w-5 text-emerald-600" />
+              <p className="mt-3 text-sm font-semibold text-slate-800">Secure Payment via GreenInvoice</p>
+            </div>
+            <div className="rounded-2xl border border-white/80 bg-white/80 p-4 shadow-sm">
+              <BadgeDollarSign className="h-5 w-5 text-blue-600" />
+              <p className="mt-3 text-sm font-semibold text-slate-800">7-day satisfaction guarantee</p>
+            </div>
+            <div className="rounded-2xl border border-white/80 bg-white/80 p-4 shadow-sm">
+              <Smartphone className="h-5 w-5 text-rose-500" />
+              <p className="mt-3 text-sm font-semibold text-slate-800">Watch on mobile, tablet, or desktop</p>
+            </div>
+          </div>
         </motion.div>
 
         <motion.div
@@ -78,7 +126,7 @@ export const Purchase = () => {
           <div className="mb-8">
             <p className="mb-2 text-xs font-bold uppercase tracking-widest text-slate-400">One-time Payment</p>
             <div className="flex items-baseline justify-center gap-2">
-              <span className="text-7xl font-black tracking-tighter text-slate-900">₪180</span>
+              <span className="text-7xl font-black tracking-tighter text-slate-900">₪{DEFAULT_VIDEO_PRICE_ILS}</span>
               <span className="text-2xl font-bold text-slate-400 line-through decoration-2 decoration-rose-400">₪360</span>
             </div>
           </div>
@@ -97,39 +145,53 @@ export const Purchase = () => {
               />
             </div>
 
-            {error && (
-              <motion.div 
-                initial={{ opacity: 0, y: -10 }} 
-                animate={{ opacity: 1, y: 0 }}
-                className="rounded-lg border border-red-200 bg-red-50 p-3 text-center text-xs font-bold uppercase tracking-wide text-red-500"
-              >
-                {error}
+            {error ? (
+              <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
+                <PaymentErrorCard message={error} />
               </motion.div>
-            )}
+            ) : null}
             
-            {success && (
+            {statusMessage ? (
               <motion.div 
                 initial={{ opacity: 0, y: -10 }} 
                 animate={{ opacity: 1, y: 0 }}
                 className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-center text-xs font-bold uppercase tracking-wide text-emerald-600"
               >
-                Redirecting to payment...
+                {statusMessage}
               </motion.div>
-            )}
+            ) : null}
 
             <button
               disabled={loading}
-              className="relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl bg-slate-900 py-5 text-lg font-black text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-blue-700"
+              className="relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl bg-slate-900 py-5 text-lg font-black text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
             >
-              <span className="relative z-10">{loading ? 'Processing...' : 'Get Started'}</span>
+              <span className="relative z-10">
+                {loading ? 'Preparing secure payment...' : 'Get Started'}
+              </span>
               {loading && <Loader2 className="w-5 h-5 animate-spin relative z-10" />}
             </button>
           </form>
           
           <div className="mt-6 flex justify-center gap-4 transition-all duration-300">
-             <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Secure Payment</span>
+             <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Secure Payment via GreenInvoice</span>
           </div>
         </motion.div>
+      </div>
+
+      <div className="relative z-10 mx-auto mt-16 max-w-5xl px-6">
+        <div className="rounded-[2rem] border border-white/80 bg-white/90 p-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+          <h3 className="text-2xl font-black text-slate-900">Quick FAQ</h3>
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            {faqItems.map((item) => (
+              <div key={item.question} className="rounded-2xl border border-slate-100 bg-slate-50 p-5">
+                <p className="text-base font-bold text-slate-800">{item.question}</p>
+                <p className="mt-2 text-sm font-medium leading-6 text-slate-500">
+                  {item.answer}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );

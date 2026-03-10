@@ -1,42 +1,74 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import { api, getApiErrorCode } from '@/lib/api-client';
+import { useAuth } from '@/context/AuthContext';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { AuthErrorCard } from '@/components/errors/AuthErrorCard';
+import { DEFAULT_VIDEO_ID } from '@/lib/catalog';
 
-export default function Watch() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(true);
+function WatchContent() {
+  const { access, refreshAuth } = useAuth();
+  const [authChecking, setAuthChecking] = useState(true);
   const [error, setError] = useState('');
+  const [videoReady, setVideoReady] = useState(false);
 
   useEffect(() => {
-    // Basic auth check simulation
-    const checkAuth = async () => {
+    const checkAccess = async () => {
       try {
-        // Assume authenticated for MVP or check cookie via API
-        setLoading(false);
-      } catch (err) {
-        router.push('/login');
+        await refreshAuth();
+        await api.get(`/video/access/${DEFAULT_VIDEO_ID}`);
+      } catch (error: unknown) {
+        const code = getApiErrorCode(error);
+
+        if (code === 'PURCHASE_REQUIRED') {
+          setError('Access denied. This tutorial requires purchase.');
+        } else if (code === 'TOKEN_EXPIRED') {
+          setError('Your session expired. Please login again.');
+        } else {
+          setError('Access denied. This tutorial requires purchase.');
+        }
+      } finally {
+        setAuthChecking(false);
       }
     };
-    checkAuth();
-  }, [router]);
+
+    void checkAccess();
+  }, [refreshAuth]);
 
   const handleVideoError = () => {
-    setError('Access denied. Please login again.');
-    setTimeout(() => router.push('/login'), 2000);
+    setError('Unable to load video. Please refresh the page.');
   };
 
-  if (loading) return (
-    <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center">
-      <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-    </div>
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const key = event.key.toLowerCase();
+      if ((event.ctrlKey || event.metaKey) && (key === 's' || key === 'p')) {
+        event.preventDefault();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  const classBreakdown = useMemo(
+    () => ['Intro & Warm Up', 'Drills & Foundation', 'Choreography Part 1', 'Choreography Part 2', 'Full Out'],
+    []
   );
+
+  if (authChecking) {
+    return <LoadingSpinner fullScreen label="Checking your tutorial access..." />;
+  };
 
   return (
     <div className="min-h-screen bg-slate-900 text-white overflow-hidden font-sans">
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid lg:grid-cols-3 gap-12">
-          {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -56,9 +88,7 @@ export default function Watch() {
             </motion.div>
             
             {error ? (
-              <div className="bg-red-900/20 border border-red-500/20 p-12 text-center text-red-500 font-bold uppercase tracking-wider rounded-2xl">
-                {error}
-              </div>
+              <AuthErrorCard title="Access denied" message={error} />
             ) : (
               <motion.div 
                 initial={{ scale: 0.98, opacity: 0 }}
@@ -66,20 +96,24 @@ export default function Watch() {
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="relative aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-slate-700/50 group"
               >
+                {!videoReady ? (
+                  <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-slate-800 via-slate-700 to-slate-800" />
+                ) : null}
                 <video
                   className="w-full h-full object-contain"
                   controls
                   controlsList="nodownload"
+                  disablePictureInPicture
                   onContextMenu={(e) => e.preventDefault()}
                   onError={handleVideoError}
+                  onLoadedData={() => setVideoReady(true)}
                   src="/api/video/stream/video_001"
                 >
                   Your browser does not support the video tag.
                 </video>
                 
-                {/* Watermark */}
-                <div className="absolute top-4 left-4 px-3 py-1 bg-black/50 text-white/50 text-[10px] font-bold uppercase tracking-widest pointer-events-none select-none rounded-full backdrop-blur-sm">
-                  Protected Content • Dance Skill
+                <div className="absolute top-4 left-4 px-3 py-1 bg-black/50 text-white/70 text-[10px] font-bold uppercase tracking-widest pointer-events-none select-none rounded-full backdrop-blur-sm">
+                  Protected Content - Dance Skill
                 </div>
               </motion.div>
             )}
@@ -87,7 +121,7 @@ export default function Watch() {
             <div className="space-y-6">
               <h3 className="text-2xl font-bold text-white uppercase tracking-tight">Class Breakdown</h3>
               <div className="space-y-2">
-                {['Intro & Warm Up', 'Drills & Foundation', 'Choreography Part 1', 'Choreography Part 2', 'Full Out'].map((section, i) => (
+                {classBreakdown.map((section, i) => (
                   <div key={i} className="flex items-center justify-between p-4 bg-slate-800 hover:bg-slate-700 transition-colors rounded-xl cursor-pointer group border border-slate-700/50">
                     <div className="flex items-center gap-4">
                       <span className="w-8 h-8 flex items-center justify-center bg-slate-900 rounded-full text-xs font-bold text-slate-500 group-hover:text-white group-hover:bg-blue-600 transition-colors">{i + 1}</span>
@@ -100,7 +134,6 @@ export default function Watch() {
             </div>
           </div>
           
-          {/* Sidebar */}
           <div className="space-y-8">
             <div className="bg-slate-800 p-8 rounded-2xl border border-slate-700/50 shadow-lg">
               <h3 className="text-xl font-bold mb-6 text-white uppercase tracking-tight">Instructor</h3>
@@ -136,5 +169,26 @@ export default function Watch() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Watch() {
+  const { access } = useAuth();
+
+  return (
+    <ProtectedRoute>
+      {access.defaultVideo ? (
+        <WatchContent />
+      ) : (
+        <div className="flex min-h-screen items-center justify-center bg-slate-50 px-6">
+          <div className="w-full max-w-xl">
+            <AuthErrorCard
+              title="Access denied"
+              message="Access denied. This tutorial requires purchase."
+            />
+          </div>
+        </div>
+      )}
+    </ProtectedRoute>
   );
 }

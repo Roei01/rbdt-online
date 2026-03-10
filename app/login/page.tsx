@@ -1,8 +1,10 @@
 'use client';
-import { useState } from 'react';
-import axios from 'axios';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
+import { Loader2 } from 'lucide-react';
+import { api, getApiErrorCode } from '@/lib/api-client';
+import { useAuth } from '@/context/AuthContext';
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -10,6 +12,15 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { refreshAuth } = useAuth();
+
+  useEffect(() => {
+    const message = searchParams.get('message');
+    if (message) {
+      setError(message);
+    }
+  }, [searchParams]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,10 +28,21 @@ export default function Login() {
     setError('');
 
     try {
-      await axios.post('/api/auth/login', { username, password });
+      await api.post('/auth/login', { username, password });
+      await refreshAuth();
       router.push('/watch');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Invalid credentials');
+    } catch (error: unknown) {
+      const code = getApiErrorCode(error);
+
+      if (code === 'INVALID_CREDENTIALS') {
+        setError('Incorrect username or password.');
+      } else if (code === 'IP_MISMATCH') {
+        setError('This account can only be accessed from the original device.');
+      } else if (code === 'TOKEN_EXPIRED') {
+        setError('Session expired. Please login again.');
+      } else {
+        setError('Incorrect username or password.');
+      }
     } finally {
       setLoading(false);
     }
@@ -79,9 +101,16 @@ export default function Login() {
           <button
             disabled={loading}
             type="submit"
-            className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg transition-all transform hover:-translate-y-1 shadow-lg rounded-xl"
+            className="flex w-full items-center justify-center gap-3 rounded-xl bg-blue-600 py-4 text-lg font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
           >
-            {loading ? 'Verifying...' : 'Log In'}
+            {loading ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <span>Verifying...</span>
+              </>
+            ) : (
+              'Log In'
+            )}
           </button>
         </form>
       </motion.div>

@@ -8,7 +8,7 @@ import { Footer } from "@/sections/Footer";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-black text-white">
+    <main className="min-h-screen bg-transparent text-slate-900">
       <Hero />
       <Styles />
       <Demo />
