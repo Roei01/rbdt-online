@@ -3,7 +3,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { ArrowUpRight, Clock3 } from "lucide-react";
-import modernDanceImage from "../server/assets/IMG_5427.png";
+import modernDanceImage from "../server/assets/IMG_2051.jpeg";
 
 type StyleCard = {
   name: string;
@@ -31,7 +31,8 @@ const categories: StyleCard[] = [
       "https://images.unsplash.com/photo-1547153760-18fc86324498?q=80&w=1000",
     muted: true,
     comingSoon: true,
-    description: "בהמשך יעלו עוד שיעורים, תרגולים ותכנים משלימים מתוך אותו עולם תנועה.",
+    description:
+      "בהמשך יעלו עוד שיעורים, תרגולים ותכנים משלימים מתוך אותו עולם תנועה.",
   },
   {
     name: "עוד בהמשך",
@@ -39,7 +40,8 @@ const categories: StyleCard[] = [
       "https://images.unsplash.com/photo-1518834107812-67b0b7c58434?q=80&w=1000",
     muted: true,
     comingSoon: true,
-    description: "העמוד ימשיך להתמלא בהמשך בתכנים חדשים באותה שפה אמנותית ומודרנית.",
+    description:
+      "העמוד ימשיך להתמלא בהמשך בתכנים חדשים באותה שפה אמנותית ומודרנית.",
   },
 ] as const;
 
@@ -61,8 +63,8 @@ export const Styles = () => {
             <br /> עם שפה אישית
           </h2>
           <p className="mx-auto max-w-2xl text-xl font-medium text-slate-600">
-            כרגע מחכה לך שיעור מרכזי אחד, ובהמשך יעלו עוד תכנים מתוך אותו
-            עולם של מחול מודרני שמשלב השפעות, ביטוי, טכניקה ונוכחות.
+            כרגע מחכה לך שיעור מרכזי אחד, ובהמשך יעלו עוד תכנים מתוך אותו עולם
+            של מחול מודרני שמשלב השפעות, ביטוי, טכניקה ונוכחות.
           </p>
         </motion.div>
 
