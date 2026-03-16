@@ -31,14 +31,20 @@ export default function ModernDancePage() {
             <div className="space-y-6">
               <div className="space-y-4">
                 <p className="text-xs font-bold uppercase tracking-[0.24em] text-slate-400">
-                  מחול מודרני
+                  מודרני פיוז׳ן
                 </p>
-                <h1 className="max-w-3xl text-4xl font-black leading-[0.92] tracking-[-0.05em] text-slate-900 md:text-6xl">
-                  שיעור מחול מודרני ממוקד שנבנה סביב זרימה, נוכחות ותנועה נקייה.
+
+                <h1 className="max-w-3xl text-4xl font-black leading-[0.92] tracking-[-0.05em] text-slate-900 md:text-5xl">
+                  שיעור לשיר אהבת השם של בן צור.
+                  <br />
+                  רמת בינוני מתקדמים{" "}
                 </h1>
-                <p className="max-w-xl text-lg font-medium leading-8 text-slate-600">
-                  אפשר לצפות קודם בטעימה מהשיעור, ואז להמשיך לרכישה כדי לפתוח את
-                  הגישה המלאה.
+                <p className="max-w-xl text-lg font-medium leading-6 text-slate-600">
+                  כדי לצפות בקומבו לחצו ״לצפייה״
+                  <br />
+                  כדי לרכוש את השיעור בעלות של{" "}
+                  <span className="font-bold text-slate-900">40₪</span> לחצו
+                  ״לרכישה״
                 </p>
               </div>
 
@@ -52,9 +58,9 @@ export default function ModernDancePage() {
                 </a>
                 <a
                   href="#purchase"
-                  className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-6 py-4 text-sm font-bold uppercase tracking-[0.12em] text-slate-800 transition hover:border-slate-300 hover:bg-slate-50"
+                  className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-[#ffe08f] px-6 py-4 text-sm font-bold uppercase tracking-[0.12em] text-slate-800 transition hover:border-slate-300 hover:bg-[#f0efeb]"
                 >
-                  לרכישה לחץ כאן
+                  לרכישה לחצו כאן
                 </a>
               </div>
             </div>

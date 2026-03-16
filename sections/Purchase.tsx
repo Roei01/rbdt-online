@@ -73,32 +73,15 @@ export const Purchase = () => {
           viewport={{ once: true }}
           className="relative z-10 space-y-4 md:space-y-6 text-right"
         >
-          <span className="mb-2 inline-block rounded-full border border-emerald-200 bg-emerald-100 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-700 md:mb-4 md:px-3 md:py-1.5 md:text-xs md:tracking-widest">
-            הצעה מיוחדת
-          </span>
           <h2 className="text-3xl font-black uppercase tracking-tight leading-[0.95] text-slate-900 sm:text-4xl md:text-7xl md:tracking-tighter md:leading-[0.9]">
-            גישה מלאה
-            <br />
-            לשיעור
-            <br />
-            המלא
+            גישה מלאה לשיעור המלא
           </h2>
           <p className="max-w-lg text-base font-medium leading-7 text-slate-600 sm:text-lg md:text-2xl md:leading-snug">
-            מקבלים גישה מיידית לשיעור המלא, עם צפייה נוחה מכל מקום ובכל זמן.
+            לאחר התשלום מקבלים גישה מיידית לשיעור המלא, עם צפייה נוחה הסברים
+            ברורים וקצב למידה נוח, מכל מקום ובכל זמן.
           </p>
 
-          <ul className="mt-5 space-y-2 text-sm font-medium text-slate-600 md:mt-8 md:space-y-3 md:text-base">
-            {DEFAULT_VIDEO_FEATURES.map((item, i) => (
-              <li key={i} className="flex items-center gap-3">
-                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white shadow-md md:h-6 md:w-6 md:text-xs">
-                  ✓
-                </div>
-                {item}
-              </li>
-            ))}
-          </ul>
-
-          <div className="grid grid-cols-1 gap-3 pt-4 sm:grid-cols-3 md:gap-4 md:pt-6">
+          <div className="grid grid-cols-2 gap-3 pt-1 sm:grid-cols-3 md:gap-4 md:pt-6">
             <div className="rounded-2xl border border-white/80 bg-white/80 p-3 shadow-sm md:p-4">
               <ShieldCheck className="h-4 w-4 text-emerald-600 md:h-5 md:w-5" />
               <p className="mt-2 text-xs font-semibold leading-5 text-slate-800 md:mt-3 md:text-sm">
@@ -129,9 +112,6 @@ export const Purchase = () => {
             <div className="flex items-baseline justify-center gap-2">
               <span className="text-5xl font-black tracking-tight text-slate-900 sm:text-6xl md:text-7xl md:tracking-tighter">
                 ₪{DEFAULT_VIDEO_PRICE_ILS}
-              </span>
-              <span className="text-lg font-bold text-slate-400 line-through decoration-2 decoration-rose-400 md:text-2xl">
-                80
               </span>
             </div>
           </div>

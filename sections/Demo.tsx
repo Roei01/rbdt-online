@@ -31,30 +31,22 @@ const Demo = () => {
   return (
     <section
       id="demo"
-      className="relative overflow-hidden bg-gradient-to-br from-[#f8fbff] via-white to-[#fff4ef] py-24 text-slate-900"
+      className="relative overflow-hidden bg-gradient-to-br from-[#f8fbff] via-white to-[#fff4ef] py-16 text-slate-900"
     >
       <div className="absolute inset-0">
         <div className="absolute left-0 top-10 h-72 w-72 rounded-full bg-blue-100/60 blur-3xl" />
         <div className="absolute bottom-0 right-10 h-80 w-80 rounded-full bg-orange-100/60 blur-3xl" />
       </div>
-      <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
+      <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-2 items-center">
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           className="relative z-10 text-right"
         >
-          <h2 className="mb-8 text-5xl font-black leading-[0.9] text-slate-900 md:text-7xl">
-            טעימה מהשיעור
-            <br />
-            לפני
-            <br />
-            הרכישה
+          <h2 className="mb-4 text-4xl font-black leading-[0.9] text-slate-900 md:text-7xl">
+            סרטון מלא של הריקוד <br />
           </h2>
-          <p className="max-w-lg text-xl font-medium leading-snug text-slate-600 md:text-2xl">
-            כאן אפשר לראות את הסגנון, הקצב ואופן ההסבר. אם זה מרגיש נכון,
-            ממשיכים לרכישה ומקבלים את השיעור המלא.
-          </p>
         </motion.div>
 
         <motion.div
