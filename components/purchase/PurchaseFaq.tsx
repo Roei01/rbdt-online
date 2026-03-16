@@ -10,13 +10,12 @@ const faqItems = [
       "אחרי התשלום יישלח אלייך מייל עם פרטי ההתחברות וקישור מאובטח לצפייה.",
   },
   {
-    question: "אפשר לצפות גם מהטלפון?",
-    answer:
-      "כן. הנגן מותאם למובייל, טאבלט ומחשב ועובד בצורה מלאה בכל המכשירים.",
+    question: "איך אפשר לצפות בשיעור?",
+    answer: "אפשר לצפות דרך הנייד, טאבלט ומחשב ועובד בצורה מלאה בכל המכשירים.",
   },
   {
     question: "מה קורה אחרי הרכישה?",
-    answer: "התשלום מאושר, פרטי הגישה מוכנים אוטומטית ונשלחים אלייך במייל.",
+    answer: "התשלום מאושר, פרטי ההתחברות נשלחים אוטומטית למייל.",
   },
   {
     question: "איך השיעור בנוי?",
@@ -26,7 +25,7 @@ const faqItems = [
 ] as const;
 
 export const PurchaseFaq = () => {
-  const [openQuestion, setOpenQuestion] = useState<string | null>(faqItems[0].question);
+  const [openQuestion, setOpenQuestion] = useState<string | null>(null);
 
   return (
     <div className="relative z-10 mx-auto mt-10 max-w-5xl px-6 md:mt-16">
@@ -39,7 +38,7 @@ export const PurchaseFaq = () => {
               type="button"
               onClick={() =>
                 setOpenQuestion((current) =>
-                  current === item.question ? null : item.question
+                  current === item.question ? null : item.question,
                 )
               }
               className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-right transition hover:border-slate-200 hover:bg-white md:p-5"

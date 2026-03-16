@@ -5,7 +5,7 @@ export const Footer = () => {
         <div className="col-span-2 space-y-8">
           <div
             dir="ltr"
-            className="flex flex-col items-start gap-1.5 text-left"
+            className="flex flex-col items-center gap-1.5 text-center"
           >
             <span className="text-2xl font-black uppercase tracking-tighter">
               Rotem Baruch
@@ -31,8 +31,8 @@ export const Footer = () => {
             </div>
           </div>
 
-          <p className="text-slate-600 text-xs tracking-wider">
-            © {new Date().getFullYear()} Dance Skill. כל הזכויות שמורות.
+          <p className="text-slate-600 text-xs tracking-wider text-center mt-2 px-2">
+            כל הזכויות שמורות © ROTEM BARUCH dance tutorials
           </p>
         </div>
 
