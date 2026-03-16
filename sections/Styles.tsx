@@ -34,15 +34,6 @@ const categories: StyleCard[] = [
     description:
       "שיעורים באורך של 15-30 דקות של כוראוגרפיות מלאות מוכרות וגם חדשות!",
   },
-  {
-    name: "עוד בהמשך",
-    image:
-      "https://images.unsplash.com/photo-1518834107812-67b0b7c58434?q=80&w=1000",
-    muted: true,
-    comingSoon: true,
-    description:
-      "העמוד ימשיך להתמלא בהמשך בתכנים חדשים באותה שפה אמנותית ומודרנית.",
-  },
 ] as const;
 
 export const Styles = () => {
