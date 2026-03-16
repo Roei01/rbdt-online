@@ -26,13 +26,13 @@ const categories: StyleCard[] = [
     cta: "לצפייה בפרטי השיעור",
   },
   {
-    name: "תכנים נוספים",
+    name: "שיעורים מלאים נוספים",
     image:
       "https://images.unsplash.com/photo-1547153760-18fc86324498?q=80&w=1000",
     muted: true,
     comingSoon: true,
     description:
-      "בהמשך יעלו עוד שיעורים, תרגולים ותכנים משלימים מתוך אותו עולם תנועה.",
+      "שיעורים באורך של 15-30 דקות של כוראוגרפיות מלאות מוכרות וגם חדשות!",
   },
   {
     name: "עוד בהמשך",
@@ -59,10 +59,17 @@ export const Styles = () => {
           className="mb-12 text-center"
         >
           <p className="mx-auto max-w-2xl text-xl font-medium text-slate-600">
-            מאז שהתחלתי לרקוד, חלמתי לחלוק את התשוקה שלי עם כולם. לאורך השנים,
-            הרבה תלמידים ביקשו ללמוד את הכוריאוגרפיות שלי, אבל לא תמיד יכולתי
-            להגיע אליהם. הגיע הזמן לתת לכולם את ההזדמנות לרקוד איתי, בקצב שלכם,
+            מאז שהתחלתי לרקוד, חלמתי לחלוק את התשוקה שלי עם כולם.
+            <br />
+            לאורך השנים, הרבה תלמידים ביקשו ללמוד את הכוריאוגרפיות שלי,
+            <br />
+            אבל לא תמיד יכולתי להגיע אליהם.
+            <br />
+            הגיע הזמן לתת לכולם את ההזדמנות לרקוד איתי, בקצב שלכם,
+            <br />
             בכל מקום ובכל זמן.
+            <br />
+            בשם השם נעשה ונצליח. 🙏🏻
           </p>
         </motion.div>
 
@@ -100,11 +107,12 @@ export const Styles = () => {
                           שיעור מלא זמין
                         </p>
                         <h3 className="mt-2 text-2xl font-black tracking-tight text-white sm:text-3xl">
-                          מחול מודרני
+                          אהבת השם - 20 דק'
                         </h3>
                         <p className="mt-3 max-w-md text-sm font-medium leading-6 text-white/90 sm:text-base">
-                          שיעור מצולם ומדויק עם שילוב של טכניקה, הבעה, זרימה
-                          ונוכחות, בשפה תנועתית אישית וברורה.
+                          שיעור מודרני פיוז׳ן לשיר אהבת השם
+                          <br />
+                          של בן צור. (רמת בינוני מתקדמים)
                         </p>
                         <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/12 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-white backdrop-blur-md transition group-hover:bg-white/20">
                           <span>{style.cta}</span>

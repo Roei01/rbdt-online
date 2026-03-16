@@ -52,8 +52,8 @@ export const Hero = () => {
                 dir="ltr"
                 className="max-w-[18rem] text-left sm:absolute sm:bottom-32 sm:left-6 sm:max-w-[26rem] lg:bottom-36 lg:left-10 lg:max-w-[34rem]"
               >
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#f7d98f] sm:text-sm">
-                  online tutorial
+                <p className="text-xs font-semibold tracking-[0.28em] text-[#f7d98f] sm:text-sm">
+                  Dance Tutorials
                 </p>
 
                 <h1 className="mt-4 font-black uppercase leading-[0.95] tracking-[-0.05em] text-white">

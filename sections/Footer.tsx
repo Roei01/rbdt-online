@@ -10,8 +10,8 @@ export const Footer = () => {
             <span className="text-2xl font-black uppercase tracking-tighter">
               Rotem Baruch
             </span>
-            <span className="text-[12px] font-bold uppercase tracking-[0.18em] text-white-300">
-              Online tutorial
+            <span className="text-[12px] font-bold tracking-[0.18em] text-white-300">
+              Dance Tutorials
             </span>
           </div>
 
