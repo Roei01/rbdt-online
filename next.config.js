@@ -6,12 +6,7 @@ const nextConfig = {
     APP_BASE_URL: process.env.APP_BASE_URL,
   },
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**',
-      },
-    ],
+    domains: ["res.cloudinary.com"],
   },
 };
 
