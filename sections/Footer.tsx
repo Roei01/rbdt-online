@@ -1,3 +1,5 @@
+"use client";
+
 import { Music2, Instagram } from "lucide-react";
 
 const socialLinks = [
@@ -89,6 +91,14 @@ export const Footer = () => {
           <li>
             <a
               href="/#styles"
+              onClick={(e) => {
+                const el = document.getElementById("styles");
+                if (!el) return;
+
+                e.preventDefault();
+                const y = el.getBoundingClientRect().top + window.scrollY + 290;
+                window.scrollTo({ top: y, behavior: "smooth" });
+              }}
               className="hover:text-blue-500 transition-colors tracking-wide"
             >
               שיעורים מלאים

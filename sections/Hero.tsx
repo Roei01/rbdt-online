@@ -23,7 +23,7 @@ export const Hero = () => {
         transition={{ duration: 0.7 }}
         className="mx-auto max-w-7xl overflow-hidden rounded-[2rem] border border-black/10 bg-white shadow-[0_30px_80px_rgba(15,23,42,0.10)]"
       >
-        <div className="relative h-[670px] sm:h-[600px] lg:h-[800px]">
+        <div className="relative h-[600px] sm:h-[560px] lg:h-[720px]">
           {" "}
           <video
             className="absolute inset-0 h-full w-full object-cover"
@@ -36,7 +36,7 @@ export const Hero = () => {
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/35 to-black/10" />
           <div className="absolute inset-0 bg-black/15" />
-          <div className="relative z-10 flex min-h-[87vh] items-end px-4 py-8 sm:px-6 lg:px-10">
+          <div className="relative z-10 flex h-full items-end px-6 py-7 sm:px-6 lg:px-10">
             <div className="w-full space-y-6 text-white sm:space-y-0">
               <div
                 dir="ltr"
@@ -64,11 +64,14 @@ export const Hero = () => {
                 </p>
                 <div className="mt-8">
                   <button
-                    onClick={() =>
-                      document
-                        .getElementById("styles")
-                        ?.scrollIntoView({ behavior: "smooth" })
-                    }
+                    onClick={() => {
+                      const el = document.getElementById("styles");
+                      if (!el) return;
+
+                      const y =
+                        el.getBoundingClientRect().top + window.scrollY + 290;
+                      window.scrollTo({ top: y, behavior: "smooth" });
+                    }}
                     className="rounded-xl bg-[#ffe08f] px-7 py-4 text-sm font-bold uppercase tracking-[0.12em] text-slate-950 shadow-[0_14px_30px_rgba(143,214,255,0.35)] transition hover:bg-[#74cbff]"
                   >
                     לצפייה בשיעורים

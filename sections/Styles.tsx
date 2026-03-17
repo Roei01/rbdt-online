@@ -3,8 +3,6 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { ArrowUpRight, Clock3 } from "lucide-react";
-import modernDanceImage from "../server/assets/IMG_2051.jpeg";
-import additionalLessonsImage from "../server/assets/addition.jpeg";
 
 type StyleCard = {
   name: string;
@@ -15,24 +13,33 @@ type StyleCard = {
   comingSoon?: boolean;
   href?: string;
   cta?: string;
+  mediaClassName?: string;
+  imageClassName?: string;
 };
 
 const categories: StyleCard[] = [
   {
     name: "השיעור הפעיל",
-    image: modernDanceImage.src,
+    image:
+      "https://res.cloudinary.com/ddcdws24e/image/upload/f_auto,q_auto,w_1200/IMG_2051_sx4gm5",
     featured: true,
     href: "/modern-dance",
     description: "מחול מודרני עם שילוב של נוכחות, זרימה, טכניקה והבעה.",
     cta: "לצפייה בפרטי השיעור",
+    mediaClassName: "aspect-[5/6] sm:aspect-[16/10] lg:aspect-[4/5]",
+    imageClassName:
+      "object-cover object-bottom transition duration-500 group-hover:scale-105",
   },
   {
     name: "שיעורים מלאים נוספים",
-    image: additionalLessonsImage.src,
+    image:
+      "https://res.cloudinary.com/ddcdws24e/image/upload/f_auto,q_auto,w_1200/addition_qzopu3",
     muted: true,
     comingSoon: true,
     description:
       "שיעורים באורך של 15-30 דקות של כוראוגרפיות מלאות מוכרות וגם חדשות!",
+    mediaClassName: "aspect-[12/10]",
+    imageClassName: "object-cover object-bottom grayscale opacity-80",
   },
 ] as const;
 
@@ -79,12 +86,17 @@ export const Styles = () => {
                   href={style.href}
                   className="group block overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.10)] transition hover:-translate-y-1 hover:shadow-[0_25px_70px_rgba(15,23,42,0.14)]"
                 >
-                  <div className="relative aspect-[4/5] sm:aspect-[16/10] lg:aspect-[4/5]">
+                  <div
+                    className={`relative ${style.mediaClassName ?? "aspect-[4/5] sm:aspect-[16/10] lg:aspect-[4/5]"}`}
+                  >
                     <Image
                       src={style.image}
                       alt={style.name}
                       fill
-                      className="object-cover transition duration-500 group-hover:scale-105"
+                      className={
+                        style.imageClassName ??
+                        "object-cover object-bottom transition duration-500 group-hover:scale-105"
+                      }
                       sizes="(max-width: 1024px) 100vw, 60vw"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/30 to-transparent" />
@@ -92,8 +104,9 @@ export const Styles = () => {
                       עכשיו באתר
                     </div>
 
-                    <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
+                    <div className="absolute inset-x-0 bottom-0 p-7 sm:p-6">
                       <div className="rounded-[1.5rem] border border-white/10 bg-black/25 p-5 text-right backdrop-blur-md">
+                        {" "}
                         <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#f2cf88]">
                           שיעור מלא זמין
                         </p>
@@ -115,12 +128,17 @@ export const Styles = () => {
                 </Link>
               ) : (
                 <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
-                  <div className="relative aspect-[16/10]">
+                  <div
+                    className={`relative ${style.mediaClassName ?? "aspect-[16/10]"}`}
+                  >
                     <Image
                       src={style.image}
                       alt={style.name}
                       fill
-                      className="object-cover grayscale opacity-60"
+                      className={
+                        style.imageClassName ??
+                        "object-cover object-bottom grayscale opacity-60"
+                      }
                       sizes="(max-width: 1024px) 100vw, 40vw"
                     />
                     <div className="absolute inset-0 bg-slate-950/45" />
@@ -132,7 +150,7 @@ export const Styles = () => {
                       </div>
                     </div>
 
-                    <div className="absolute inset-x-0 bottom-0 p-5">
+                    <div className="absolute inset-x-0 bottom-0 p-7">
                       <div className="rounded-[1.5rem] border border-white/10 bg-black/15 p-5 text-right backdrop-blur-sm">
                         <h3 className="text-xl font-black tracking-tight text-white md:text-2xl">
                           {style.name}
