@@ -1,9 +1,12 @@
 "use client";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { motion } from "framer-motion";
+import { PlayCircle } from "lucide-react";
 
 const Demo = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [hasStarted, setHasStarted] = useState(false);
+  const [isStarting, setIsStarting] = useState(false);
 
   const handleOpenFullscreen = async () => {
     const video = videoRef.current;
@@ -25,6 +28,24 @@ const Demo = () => {
       ).webkitEnterFullscreen?.();
     } catch {
       // Ignore fullscreen failures and keep the inline player available.
+    }
+  };
+
+  const handleStartPlayback = async () => {
+    const video = videoRef.current;
+
+    if (!video) {
+      return;
+    }
+
+    try {
+      setIsStarting(true);
+      await video.play();
+      setHasStarted(true);
+    } catch {
+      // If autoplay-like play fails, keep native controls available.
+    } finally {
+      setIsStarting(false);
     }
   };
 
@@ -53,9 +74,9 @@ const Demo = () => {
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          className="relative"
+          className="relative mx-auto w-full max-w-sm lg:max-w-none"
         >
-          <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] border border-white/80 bg-white p-3 shadow-[0_30px_80px_rgba(15,23,42,0.14)] transition-transform duration-500 hover:rotate-0 sm:aspect-[16/10] lg:aspect-[16/9] md:-rotate-2">
+          <div className="relative aspect-[9/16] overflow-hidden rounded-[2rem] border border-white/80 bg-white p-3 shadow-[0_30px_80px_rgba(15,23,42,0.14)] transition-transform duration-500 hover:rotate-0 sm:aspect-[16/10] lg:aspect-[16/9] md:-rotate-2">
             <div className="relative h-full w-full overflow-hidden rounded-[1.4rem] bg-slate-900">
               <button
                 type="button"
@@ -66,16 +87,34 @@ const Demo = () => {
               </button>
               <video
                 ref={videoRef}
-                className="h-full w-full bg-black object-contain sm:object-cover"
+                className="h-full w-full bg-black object-cover"
                 src="/api/video/preview"
                 controls
                 playsInline
                 preload="auto"
                 controlsList="nodownload noplaybackrate"
+                disablePictureInPicture
                 onContextMenu={(e) => e.preventDefault()}
+                onPlay={() => setHasStarted(true)}
               >
                 הדפדפן שלך לא תומך בניגון הווידאו.
               </video>
+
+              {!hasStarted && (
+                <button
+                  type="button"
+                  onClick={handleStartPlayback}
+                  className="absolute inset-0 z-10 flex items-center justify-center bg-gradient-to-t from-black/55 via-black/15 to-black/35 transition hover:bg-black/35"
+                  aria-label="ניגון הסרטון"
+                >
+                  <div className="flex items-center gap-3 rounded-full border border-white/20 bg-black/45 px-5 py-3 text-white shadow-2xl backdrop-blur-md">
+                    <PlayCircle className="h-7 w-7" />
+                    <span className="text-sm font-bold">
+                      {isStarting ? "טוען..." : "לצפייה בסרטון"}
+                    </span>
+                  </div>
+                </button>
+              )}
             </div>
           </div>
 

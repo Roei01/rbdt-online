@@ -10,6 +10,16 @@ import { DEFAULT_VIDEO_ID } from "../../lib/catalog";
 
 const router = express.Router();
 
+const getVideoContentType = (videoPath: string) => {
+  const ext = path.extname(videoPath).toLowerCase();
+
+  if (ext === ".mov") {
+    return "video/quicktime";
+  }
+
+  return "video/mp4";
+};
+
 const streamVideoFile = (
   res: express.Response,
   videoPath: string,
@@ -55,7 +65,12 @@ router.get("/preview", (req, res) => {
     });
   }
 
-  return streamVideoFile(res, previewPath, "video/mp4", req.headers.range);
+  return streamVideoFile(
+    res,
+    previewPath,
+    getVideoContentType(previewPath),
+    req.headers.range,
+  );
 });
 
 router.get("/hero", (req, res) => {
@@ -68,7 +83,12 @@ router.get("/hero", (req, res) => {
     });
   }
 
-  return streamVideoFile(res, heroVideoPath, "video/mp4", req.headers.range);
+  return streamVideoFile(
+    res,
+    heroVideoPath,
+    getVideoContentType(heroVideoPath),
+    req.headers.range,
+  );
 });
 
 router.get(
@@ -99,7 +119,12 @@ router.get(
       });
     }
 
-    return streamVideoFile(res, videoPath, "video/mp4", req.headers.range);
+    return streamVideoFile(
+      res,
+      videoPath,
+      getVideoContentType(videoPath),
+      req.headers.range,
+    );
   },
 );
 
