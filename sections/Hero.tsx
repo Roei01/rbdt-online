@@ -27,7 +27,7 @@ export const Hero = () => {
           {" "}
           <video
             className="absolute inset-0 h-full w-full object-cover object-center"
-            src="/api/video/hero"
+            src="https://res.cloudinary.com/ddcdws24e/video/upload/f_auto,q_auto/gif_vckoau.mp4"
             autoPlay
             loop
             muted

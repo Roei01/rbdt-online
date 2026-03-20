@@ -5,7 +5,6 @@ import { Demo } from "@/sections/Demo";
 import { Purchase } from "@/sections/Purchase";
 import { Footer } from "@/sections/Footer";
 import { DEFAULT_VIDEO_PRICE_ILS } from "@/lib/catalog";
-import danceImage from "@/server/assets/IMG_5427.png";
 
 export const dynamic = "force-dynamic";
 

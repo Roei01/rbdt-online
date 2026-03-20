@@ -57,17 +57,26 @@ export const Styles = () => {
           viewport={{ once: true }}
           className="mb-10 text-center md:mb-12"
         >
-          <p className="mx-auto max-w-2xl text-base font-medium leading-8 text-slate-600 sm:text-lg">
+          <p className="text-[15px] font-medium leading-7 text-slate-600 min-[360px]:text-base sm:text-lg sm:leading-8">
             מאז שהתחלתי לרקוד, חלמתי לחלוק את התשוקה שלי עם כולם.
-            <br />
+            <span className="hidden sm:inline">
+              <br />
+            </span>{" "}
             לאורך השנים, הרבה תלמידים ביקשו ללמוד את הכוריאוגרפיות שלי,
-            <br />
+            <span className="hidden sm:inline">
+              <br />
+            </span>{" "}
             אבל לא תמיד יכולתי להגיע אליהם.
-            <br />
+          </p>
+          <p className="mt-3 text-[15px] font-medium leading-7 text-slate-600 min-[360px]:text-base sm:mt-4 sm:text-lg sm:leading-8">
             הגיע הזמן לתת לכולם את ההזדמנות לרקוד איתי, בקצב שלכם,
-            <br />
+            <span className="hidden sm:inline">
+              <br />
+            </span>{" "}
             בכל מקום ובכל זמן.
-            <br />
+            <span className="hidden sm:inline">
+              <br />
+            </span>{" "}
             בשם השם נעשה ונצליח. 🙏🏻
           </p>
         </motion.div>

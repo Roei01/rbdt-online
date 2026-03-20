@@ -9,6 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { usePathname } from "next/navigation";
 import { api, getApiErrorCode } from "@/lib/api-client";
 
 export type AuthUser = {
@@ -36,10 +37,12 @@ const defaultAccess: AuthAccess = {
   defaultVideo: false,
   videos: [],
 };
+const publicPathnames = new Set(["/", "/modern-dance"]);
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const pathname = usePathname();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [access, setAccess] = useState<AuthAccess>(defaultAccess);
   const [loading, setLoading] = useState(true);
@@ -63,8 +66,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
+    if (pathname && publicPathnames.has(pathname)) {
+      setUser(null);
+      setAccess(defaultAccess);
+      setErrorCode(undefined);
+      setLoading(false);
+      return;
+    }
+
     void refreshAuth();
-  }, [refreshAuth]);
+  }, [pathname, refreshAuth]);
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -83,7 +94,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setAccess(defaultAccess);
       },
     }),
-    [access, errorCode, loading, refreshAuth, user]
+    [access, errorCode, loading, refreshAuth, user],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -9,6 +9,8 @@ import {
 import { DEFAULT_VIDEO_ID } from "../../lib/catalog";
 
 const router = express.Router();
+const CLOUDINARY_PREVIEW_URL =
+  "https://res.cloudinary.com/ddcdws24e/video/upload/f_auto,q_auto/9F67D997-37AB-423E-9BB1-D12FB8D53455_2_hh0lu8.mp4";
 
 const getVideoContentType = (videoPath: string) => {
   const ext = path.extname(videoPath).toLowerCase();
@@ -56,21 +58,8 @@ const streamVideoFile = (
 };
 
 router.get("/preview", (req, res) => {
-  const previewPath = path.resolve(__dirname, "../../app/assert/video3.mov");
-
-  if (!fs.existsSync(previewPath)) {
-    return res.status(404).json({
-      code: "VIDEO_UNAVAILABLE",
-      message: "Unable to load preview video.",
-    });
-  }
-
-  return streamVideoFile(
-    res,
-    previewPath,
-    getVideoContentType(previewPath),
-    req.headers.range,
-  );
+  res.setHeader("Cache-Control", "no-store");
+  return res.redirect(CLOUDINARY_PREVIEW_URL);
 });
 
 router.get("/hero", (req, res) => {
