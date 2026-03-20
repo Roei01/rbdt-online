@@ -21,3 +21,14 @@ export const purchaseRateLimiter = rateLimit({
     message: "Too many purchase attempts. Please try again later.",
   },
 });
+
+export const newsletterRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    code: "RATE_LIMITED",
+    message: "Too many signup attempts. Please try again later.",
+  },
+});

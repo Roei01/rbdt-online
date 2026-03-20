@@ -1,6 +1,8 @@
 "use client";
 
+import { FormEvent, useState } from "react";
 import { Music2, Instagram } from "lucide-react";
+import { api, getApiErrorCode, getApiErrorMessage } from "@/lib/api-client";
 
 const socialLinks = [
   {
@@ -16,10 +18,51 @@ const socialLinks = [
 ];
 
 export const Footer = () => {
+  const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState<"success" | "error" | null>(
+    null
+  );
+
+  const handleNewsletterSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setMessage("");
+    setMessageType(null);
+
+    if (!email.trim()) {
+      setMessage("נא להזין כתובת אימייל.");
+      setMessageType("error");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const response = await api.post("/newsletter/subscribe", {
+        email: email.trim(),
+      });
+
+      setMessage(response.data.message ?? "נרשמת בהצלחה לדיוור.");
+      setMessageType("success");
+      setEmail("");
+    } catch (error) {
+      const code = getApiErrorCode(error);
+      const fallbackMessage =
+        code === "RATE_LIMITED"
+          ? "יש יותר מדי ניסיונות כרגע. נסי שוב בעוד כמה דקות."
+          : "לא הצלחנו להשלים את ההרשמה כרגע. נסי שוב.";
+
+      setMessage(getApiErrorMessage(error, fallbackMessage));
+      setMessageType("error");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <footer className="bg-slate-950 text-white py-16 border-t border-slate-900">
+    <footer className="border-t border-slate-900 bg-slate-950 py-10 text-white sm:py-12">
       <div className="max-w-7xl mx-auto px-6 text-right">
-        <div className="space-y-8">
+        <div className="space-y-6 sm:space-y-7">
           <div
             dir="ltr"
             className="flex flex-col items-center gap-1.5 text-center"
@@ -32,20 +75,81 @@ export const Footer = () => {
             </span>
           </div>
 
+          <div className="flex w-full justify-center">
+            <ul className="space-y-3 text-center text-sm font-medium text-slate-300">
+              <li>
+                <a
+                  href="/"
+                  className="hover:text-blue-500 transition-colors tracking-wide"
+                >
+                  בית
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/#styles"
+                  onClick={(e) => {
+                    const el = document.getElementById("styles");
+                    if (!el) return;
+
+                    e.preventDefault();
+                    const y =
+                      el.getBoundingClientRect().top + window.scrollY + 290;
+                    window.scrollTo({ top: y, behavior: "smooth" });
+                  }}
+                  className="hover:text-blue-500 transition-colors tracking-wide"
+                >
+                  שיעורים מלאים
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/#faq"
+                  className="hover:text-blue-500 transition-colors tracking-wide"
+                >
+                  שאלות נפוצות
+                </a>
+              </li>
+            </ul>
+          </div>
+
           <div className="mx-auto max-w-sm text-center md:flex md:flex-col md:items-center">
-            <h4 className="text-blue-500 font-bold text-s mb-4">
+            <h4 className="mb-3 text-s font-bold text-blue-500">
               להרשמה לקבלת עדכונים על תכנים חדשים .{" "}
             </h4>
-            <div className="flex gap-2 md:justify-center">
-              <input
-                type="email"
-                placeholder="אימייל"
-                className="bg-slate-900 border border-slate-800 px-4 py-2 text-white w-full text-sm placeholder-slate-600 focus:outline-none focus:border-blue-500 rounded-lg"
-              />
-              <button className="bg-transparent border border-blue-600 text-blue-500 px-6 py-2 text-xs font-bold uppercase tracking-wider hover:bg-blue-600 hover:text-white transition-colors rounded-lg whitespace-nowrap">
-                הרשמה
-              </button>
-            </div>
+            <form
+              onSubmit={handleNewsletterSubmit}
+              className="w-full space-y-2.5"
+            >
+              <div className="flex gap-2 md:justify-center">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="אימייל"
+                  autoComplete="email"
+                  className="w-full rounded-lg border border-slate-800 bg-slate-900 px-4 py-2 text-sm text-white placeholder-slate-600 focus:border-blue-500 focus:outline-none"
+                />
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="whitespace-nowrap rounded-lg border border-blue-600 bg-transparent px-6 py-2 text-xs font-bold uppercase tracking-wider text-blue-500 transition-colors hover:bg-blue-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isSubmitting ? "נרשם..." : "הרשמה"}
+                </button>
+              </div>
+              {message ? (
+                <p
+                  className={`text-center text-xs font-medium ${
+                    messageType === "success"
+                      ? "text-emerald-400"
+                      : "text-red-400"
+                  }`}
+                >
+                  {message}
+                </p>
+              ) : null}
+            </form>
           </div>
 
           <p className="text-center text-sm text-slate-500">
@@ -78,43 +182,7 @@ export const Footer = () => {
         </div>
       </div>
 
-      <div className="mt-12 flex w-full justify-center">
-        <ul className="space-y-4 text-sm font-medium text-slate-300 text-center">
-          <li>
-            <a
-              href="/"
-              className="hover:text-blue-500 transition-colors tracking-wide"
-            >
-              בית
-            </a>
-          </li>
-          <li>
-            <a
-              href="/#styles"
-              onClick={(e) => {
-                const el = document.getElementById("styles");
-                if (!el) return;
-
-                e.preventDefault();
-                const y = el.getBoundingClientRect().top + window.scrollY + 290;
-                window.scrollTo({ top: y, behavior: "smooth" });
-              }}
-              className="hover:text-blue-500 transition-colors tracking-wide"
-            >
-              שיעורים מלאים
-            </a>
-          </li>
-          <li>
-            <a
-              href="/#faq"
-              className="hover:text-blue-500 transition-colors tracking-wide"
-            >
-              שאלות נפוצות
-            </a>
-          </li>
-        </ul>
-      </div>
-      <p className="mt-16 text-center text-slate-600 text-xs tracking-wider px-6">
+      <p className="mt-8 px-6 text-center text-xs tracking-wider text-slate-600 sm:mt-10">
         כל הזכויות שמורות © ROTEM BARUCH dance tutorials
       </p>
     </footer>

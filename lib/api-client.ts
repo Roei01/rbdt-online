@@ -13,6 +13,7 @@ export type ApiErrorCode =
   | "PURCHASE_REQUIRED"
   | "VIDEO_UNAVAILABLE"
   | "NETWORK_ERROR"
+  | "RATE_LIMITED"
   | "VALIDATION_ERROR"
   | "INTERNAL_ERROR";
 
