@@ -74,10 +74,7 @@ export const Styles = () => {
               <br />
             </span>{" "}
             בכל מקום ובכל זמן.
-            <span className="hidden sm:inline">
-              <br />
-            </span>{" "}
-            בשם השם נעשה ונצליח. 🙏🏻
+            <span className="block">בשם השם נעשה ונצליח. 🙏🏻</span>
           </p>
         </motion.div>
 
