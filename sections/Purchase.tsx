@@ -128,29 +128,6 @@ export const Purchase = () => {
               </p>
             </div>
           </div>
-
-          <div className="rounded-[1.75rem] border border-white/80 bg-white/85 p-4 shadow-sm md:p-5">
-            <h3 className="text-sm font-black text-slate-900 md:text-base">
-              פרטי העסק והרכישה
-            </h3>
-            <div className="mt-3 space-y-2 text-sm font-medium leading-6 text-slate-600">
-              <p>טלפון ליצירת קשר: {BUSINESS_CONTACT_PHONE}</p>
-              <p>אימייל: {BUSINESS_CONTACT_EMAIL}</p>
-              <p>כתובת העסק: {BUSINESS_ADDRESS}</p>
-              <p>רכישה באתר מגיל {MINIMUM_PURCHASE_AGE} ומעלה.</p>
-              <p>
-                אספקת המוצר היא דיגיטלית, ונשלחת לאחר התשלום לכתובת האימייל
-                שהוזנה בטופס.
-              </p>
-              <p>
-                ניתן לעיין בתנאים המלאים בעמוד{" "}
-                <Link href="/terms" className="font-bold text-slate-900 underline">
-                  התקנון והמדיניות
-                </Link>
-                .
-              </p>
-            </div>
-          </div>
         </motion.div>
 
         <motion.div
@@ -240,11 +217,17 @@ export const Purchase = () => {
               />
               <span className="text-sm font-medium leading-6 text-slate-600">
                 אני מאשר/ת את{" "}
-                <Link href="/terms" className="font-bold text-slate-900 underline">
+                <Link
+                  href="/terms"
+                  className="font-bold text-slate-900 underline"
+                >
                   התנאים והתקנון
                 </Link>{" "}
                 ואת{" "}
-                <Link href="/terms#privacy" className="font-bold text-slate-900 underline">
+                <Link
+                  href="/terms#privacy"
+                  className="font-bold text-slate-900 underline"
+                >
                   מדיניות הפרטיות
                 </Link>
                 .

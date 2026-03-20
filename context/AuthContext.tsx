@@ -37,6 +37,7 @@ const defaultAccess: AuthAccess = {
   defaultVideo: false,
   videos: [],
 };
+const publicPathnames = new Set(["/", "/modern-dance"]);
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
@@ -65,7 +66,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    if (pathname === "/") {
+    if (pathname && publicPathnames.has(pathname)) {
+      setUser(null);
+      setAccess(defaultAccess);
+      setErrorCode(undefined);
       setLoading(false);
       return;
     }
@@ -90,7 +94,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setAccess(defaultAccess);
       },
     }),
-    [access, errorCode, loading, refreshAuth, user]
+    [access, errorCode, loading, refreshAuth, user],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
