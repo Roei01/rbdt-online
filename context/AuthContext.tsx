@@ -9,6 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { usePathname } from "next/navigation";
 import { api, getApiErrorCode } from "@/lib/api-client";
 
 export type AuthUser = {
@@ -40,6 +41,7 @@ const defaultAccess: AuthAccess = {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const pathname = usePathname();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [access, setAccess] = useState<AuthAccess>(defaultAccess);
   const [loading, setLoading] = useState(true);
@@ -63,8 +65,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
+    if (pathname === "/") {
+      setLoading(false);
+      return;
+    }
+
     void refreshAuth();
-  }, [refreshAuth]);
+  }, [pathname, refreshAuth]);
 
   const value = useMemo<AuthContextValue>(
     () => ({
