@@ -68,6 +68,7 @@ router.post('/create', purchaseRateLimiter, async (req, res) => {
     }
 
     const { email, fullName, phone } = validation.data;
+    const appBaseUrl = deriveAppBaseUrlFromRequest(req);
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
