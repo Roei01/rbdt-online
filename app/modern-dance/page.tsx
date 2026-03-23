@@ -71,56 +71,6 @@ export default function ModernDancePage() {
                   לרכישה לחצו כאן
                 </a>
               </div>
-
-              <div className="grid gap-4 rounded-[2rem] border border-slate-200/80 bg-white/85 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur sm:grid-cols-2">
-                <div className="space-y-2 text-right">
-                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
-                    פרטי בית העסק
-                  </p>
-                  <p className="text-sm font-medium text-slate-700">
-                    טלפון: {BUSINESS_CONTACT_PHONE}
-                  </p>
-                  <p className="text-sm font-medium text-slate-700">
-                    אימייל: {BUSINESS_CONTACT_EMAIL}
-                  </p>
-                  <p className="text-sm font-medium leading-6 text-slate-700">
-                    כתובת: {BUSINESS_ADDRESS}
-                  </p>
-                  <p className="text-sm font-medium text-slate-700">
-                    רכישה מגיל {MINIMUM_PURCHASE_AGE} ומעלה.
-                  </p>
-                </div>
-
-                <div className="space-y-2 text-right">
-                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
-                    מידע משפטי
-                  </p>
-                  <Link
-                    href="/terms"
-                    className="block text-sm font-semibold text-slate-900 underline underline-offset-4"
-                  >
-                    תקנון האתר ותנאי שימוש
-                  </Link>
-                  <Link
-                    href="/terms#privacy"
-                    className="block text-sm font-medium text-slate-700 underline underline-offset-4"
-                  >
-                    מדיניות פרטיות
-                  </Link>
-                  <Link
-                    href="/terms#cancellation"
-                    className="block text-sm font-medium text-slate-700 underline underline-offset-4"
-                  >
-                    ביטול עסקה והחזרים
-                  </Link>
-                  <Link
-                    href="/terms#delivery"
-                    className="block text-sm font-medium text-slate-700 underline underline-offset-4"
-                  >
-                    מדיניות אספקת המוצר הדיגיטלי
-                  </Link>
-                </div>
-              </div>
             </div>
           </div>
         </div>
