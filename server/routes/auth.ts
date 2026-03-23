@@ -2,10 +2,12 @@ import express from 'express';
 import { User } from '../../models/User';
 import { Purchase } from '../../models/Purchase';
 import {
-  checkIpAccess,
   comparePassword,
   generateToken,
-  getClientIp,
+  hasConflictingActiveSession,
+  releaseActiveSession,
+  startExclusiveSession,
+  verifyToken,
 } from '../services/auth';
 import { authenticate, type AuthenticatedRequest } from '../middleware/authenticate';
 import { DEFAULT_VIDEO_ID } from '../../lib/catalog';
@@ -42,16 +44,38 @@ router.post('/login', authRateLimiter, async (req, res) => {
     });
   }
 
-  const currentIp = getClientIp(req.headers["x-forwarded-for"], req.ip || req.socket.remoteAddress);
-  const isAllowed = await checkIpAccess(String(user._id), currentIp);
-  if (!isAllowed) {
-    return res.status(403).json({
-      code: 'IP_MISMATCH',
-      message: 'This account can be used on up to 3 devices only.',
+  let currentSessionId: string | undefined;
+  const existingToken = req.cookies.token || req.headers.authorization?.split(' ')[1];
+
+  if (typeof existingToken === 'string' && existingToken.length > 0) {
+    try {
+      const decoded = verifyToken(existingToken);
+      if (decoded.userId === String(user._id)) {
+        currentSessionId = decoded.sessionId;
+      }
+    } catch {
+      currentSessionId = undefined;
+    }
+  }
+
+  const hasActiveSession = await hasConflictingActiveSession(
+    String(user._id),
+    currentSessionId,
+  );
+
+  if (hasActiveSession) {
+    return res.status(409).json({
+      code: 'SESSION_ALREADY_ACTIVE',
+      message: 'This account is already connected on another device.',
     });
   }
 
-  const token = generateToken({ userId: String(user._id), username: user.username });
+  const sessionId = await startExclusiveSession(String(user._id));
+  const token = generateToken({
+    userId: String(user._id),
+    username: user.username,
+    sessionId,
+  });
   
   res.cookie('token', token, {
     httpOnly: true,
@@ -111,7 +135,18 @@ router.get('/me', authenticate, async (req: AuthenticatedRequest, res) => {
   });
 });
 
-router.post('/logout', (_req, res) => {
+router.post('/logout', async (req, res) => {
+  const token = req.cookies.token || req.headers.authorization?.split(' ')[1];
+
+  if (typeof token === 'string' && token.length > 0) {
+    try {
+      const decoded = verifyToken(token);
+      await releaseActiveSession(decoded.userId, decoded.sessionId);
+    } catch {
+      // Always clear the cookie even if the session token is already invalid.
+    }
+  }
+
   res.clearCookie('token', {
     httpOnly: true,
     sameSite: 'lax',

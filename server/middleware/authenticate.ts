@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import {
   verifyToken,
-  checkIpAccess,
-  getClientIp,
+  isSessionActive,
   type AuthTokenPayload,
 } from '../services/auth';
 
@@ -26,18 +25,23 @@ export const authenticate = async (
 
   try {
     const decoded = verifyToken(token);
-    req.user = decoded;
-
-    const currentIp = getClientIp(req.headers["x-forwarded-for"], req.ip || req.socket.remoteAddress);
-    const isAllowed = await checkIpAccess(decoded.userId, currentIp as string);
-
-    if (!isAllowed) {
-      return res.status(403).json({
-        code: 'IP_MISMATCH',
-        message: 'This account can be used on up to 3 devices only.',
+    if (!decoded.sessionId) {
+      return res.status(401).json({
+        code: 'AUTH_REQUIRED',
+        message: 'Invalid or expired token',
       });
     }
 
+    const isAllowed = await isSessionActive(decoded.userId, decoded.sessionId);
+
+    if (!isAllowed) {
+      return res.status(401).json({
+        code: 'AUTH_REQUIRED',
+        message: 'Your session is no longer active. Please login again.',
+      });
+    }
+
+    req.user = decoded;
     next();
   } catch (error: unknown) {
     if (error instanceof Error && error.name === 'TokenExpiredError') {
