@@ -6,6 +6,9 @@ export interface IUser extends Document {
   passwordHash: string;
   ipAddress?: string;
   allowedIps: string[];
+  activeSessionId?: string;
+  activeSessionStartedAt?: Date;
+  activeSessionExpiresAt?: Date;
   createdAt: Date;
 }
 
@@ -15,6 +18,9 @@ const UserSchema = new Schema<IUser>({
   passwordHash: { type: String, required: true },
   ipAddress: { type: String },
   allowedIps: { type: [String], default: [] },
+  activeSessionId: { type: String },
+  activeSessionStartedAt: { type: Date },
+  activeSessionExpiresAt: { type: Date },
   createdAt: { type: Date, default: Date.now },
 });
 

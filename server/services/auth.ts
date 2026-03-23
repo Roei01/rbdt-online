@@ -4,11 +4,12 @@ import crypto from 'crypto';
 import { config } from '../config/env';
 import { User, type IUser } from '../../models/User';
 
-export const MAX_ALLOWED_DEVICES = 3;
+export const SESSION_DURATION_MS = 24 * 60 * 60 * 1000;
 
 export type AuthTokenPayload = {
   userId: string;
   username: string;
+  sessionId: string;
 };
 
 export const generateTempPassword = (length = 10): string => {
@@ -32,70 +33,89 @@ export const verifyToken = (token: string): AuthTokenPayload => {
   return jwt.verify(token, config.jwtSecret) as AuthTokenPayload;
 };
 
-const normalizeClientIp = (ip: string) => {
-  const trimmed = ip.trim();
+export const generateSessionId = (): string => {
+  return crypto.randomUUID();
+};
 
-  if (trimmed.startsWith('::ffff:')) {
-    return trimmed.slice(7);
+const clearSessionFields = (user: IUser) => {
+  user.activeSessionId = undefined;
+  user.activeSessionStartedAt = undefined;
+  user.activeSessionExpiresAt = undefined;
+};
+
+const clearExpiredSessionIfNeeded = async (user: IUser) => {
+  if (
+    user.activeSessionId &&
+    user.activeSessionExpiresAt &&
+    user.activeSessionExpiresAt.getTime() <= Date.now()
+  ) {
+    clearSessionFields(user);
+    await user.save();
   }
-
-  return trimmed;
 };
 
-const buildAllowedIpList = (user: Pick<IUser, 'allowedIps' | 'ipAddress'> | null) => {
-  const knownIps = [
-    ...(user?.allowedIps ?? []),
-    ...(user?.ipAddress ? [user.ipAddress] : []),
-  ]
-    .map(normalizeClientIp)
-    .filter(Boolean);
-
-  return Array.from(new Set(knownIps)).slice(0, MAX_ALLOWED_DEVICES);
-};
-
-export const checkIpAccess = async (userId: string, currentIp: string): Promise<boolean> => {
+export const hasConflictingActiveSession = async (
+  userId: string,
+  currentSessionId?: string,
+): Promise<boolean> => {
   const user = await User.findById(userId);
-  if (!user) return false;
-
-  const normalizedCurrentIp = normalizeClientIp(currentIp);
-  const allowedIps = buildAllowedIpList(user);
-
-  if (allowedIps.includes(normalizedCurrentIp)) {
-    if (
-      user.ipAddress !== undefined ||
-      allowedIps.length !== (user.allowedIps ?? []).length ||
-      allowedIps.some((ip, index) => user.allowedIps?.[index] !== ip)
-    ) {
-      user.ipAddress = undefined;
-      user.allowedIps = allowedIps;
-      await user.save();
-    }
-
+  if (!user) {
     return true;
   }
 
-  if (allowedIps.length >= MAX_ALLOWED_DEVICES) {
+  await clearExpiredSessionIfNeeded(user);
+
+  if (!user.activeSessionId) {
     return false;
   }
 
-  user.ipAddress = undefined;
-  user.allowedIps = [...allowedIps, normalizedCurrentIp];
-  await user.save();
-  return true;
+  return user.activeSessionId !== currentSessionId;
 };
 
-export const getClientIp = (forwardedFor?: string | string[], fallback?: string) => {
-  if (Array.isArray(forwardedFor) && forwardedFor.length > 0) {
-    return normalizeClientIp(forwardedFor[0]);
+export const startExclusiveSession = async (userId: string): Promise<string> => {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new Error('User not found.');
   }
 
-  if (typeof forwardedFor === "string" && forwardedFor.length > 0) {
-    return normalizeClientIp(forwardedFor.split(",")[0].trim());
+  const sessionId = generateSessionId();
+  user.activeSessionId = sessionId;
+  user.activeSessionStartedAt = new Date();
+  user.activeSessionExpiresAt = new Date(Date.now() + SESSION_DURATION_MS);
+  user.ipAddress = undefined;
+  user.allowedIps = [];
+  await user.save();
+
+  return sessionId;
+};
+
+export const releaseActiveSession = async (userId: string, sessionId?: string) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    return;
   }
 
-  if (fallback && fallback.length > 0) {
-    return normalizeClientIp(fallback);
+  await clearExpiredSessionIfNeeded(user);
+
+  if (!user.activeSessionId) {
+    return;
   }
 
-  return "127.0.0.1";
+  if (sessionId && user.activeSessionId !== sessionId) {
+    return;
+  }
+
+  clearSessionFields(user);
+  await user.save();
+};
+
+export const isSessionActive = async (userId: string, sessionId: string): Promise<boolean> => {
+  const user = await User.findById(userId);
+  if (!user) {
+    return false;
+  }
+
+  await clearExpiredSessionIfNeeded(user);
+
+  return user.activeSessionId === sessionId;
 };

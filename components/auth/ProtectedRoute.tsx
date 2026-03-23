@@ -10,8 +10,8 @@ const mapErrorCodeToMessage = (code?: string) => {
   switch (code) {
     case "TOKEN_EXPIRED":
       return "פג תוקף ההתחברות. יש להתחבר מחדש.";
-    case "IP_MISMATCH":
-      return "אפשר להתחבר לחשבון הזה מעד 3 מכשירים. הגעת למכסה המקסימלית.";
+    case "SESSION_ALREADY_ACTIVE":
+      return "לא ניתן להתחבר כעת. כבר יש משתמש אחד מחובר לחשבון הזה.";
     default:
       return "יש להתחבר כדי להמשיך.";
   }
