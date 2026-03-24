@@ -7,7 +7,7 @@ const INSTAGRAM_URL =
   "https://www.instagram.com/reel/DVxwwKfiCgU/?igsh=aHJ0eDN3ZWswc28w";
 const DEMO_VIDEO_URL =
   "https://myrbdt.b-cdn.net/9F67D997-37AB-423E-9BB1-D12FB8D53455%202.mov";
-const ENABLE_DEMO_VIDEO_MOTION = false;
+const ENABLE_DEMO_VIDEO_MOTION = true;
 
 const Demo_inst = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
