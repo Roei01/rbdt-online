@@ -40,7 +40,7 @@ const categories: StyleCard[] = [
     mediaClassName:
       "aspect-[11/10] min-[294px]:aspect-[12/10] min-[600px]:aspect-[4/3] xl:aspect-[5/4]",
     imageClassName:
-      "object-cover object-[center_80%] grayscale opacity-80 scale-[1.14] -translate-y-[8%] min-[600px]:object-[center_26%] min-[600px]:scale-100 min-[600px]:translate-y-0 xl:object-[center_22%]",
+      "object-cover object-[center_80%] grayscale opacity-80 scale-[1.2] translate-y-[6%] min-[600px]:object-[center_26%] min-[600px]:scale-100 min-[600px]:translate-y-0 xl:object-[center_22%]",
   },
 ] as const;
 
@@ -101,6 +101,7 @@ export const Styles = () => {
                         src={style.image}
                         alt={style.name}
                         fill
+                        unoptimized
                         priority={Boolean(style.featured)}
                         className={
                           style.imageClassName ??
@@ -143,6 +144,7 @@ export const Styles = () => {
                         src={style.image}
                         alt={style.name}
                         fill
+                        unoptimized
                         className={
                           style.imageClassName ??
                           "object-cover object-bottom grayscale opacity-60"
