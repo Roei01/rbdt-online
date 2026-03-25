@@ -176,79 +176,42 @@ export const Footer = () => {
             </a>
           </p>
 
-          <div className="mx-auto grid max-w-3xl justify-items-center gap-4 rounded-[1.75rem] border border-slate-800 bg-slate-900/80 p-5 text-center sm:grid-cols-2">
-            <div className="space-y-2 text-sm text-slate-300">
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-500">
-                פרטי העסק
-              </p>
-              <p>{BUSINESS_NAME}</p>
-              <p>טלפון: {BUSINESS_CONTACT_PHONE}</p>
-              <p>אימייל: {BUSINESS_CONTACT_EMAIL}</p>
-              <p className="leading-6">כתובת: {BUSINESS_ADDRESS}</p>
-              <p>רכישה מגיל {MINIMUM_PURCHASE_AGE} ומעלה.</p>
-            </div>
-
-            <div className="space-y-2 text-sm text-slate-300">
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-500">
-                מידע משפטי
-              </p>
-              <Link
-                href="/terms"
-                className="block underline underline-offset-4 hover:text-blue-400"
-              >
-                תקנון האתר
-              </Link>
-              <Link
-                href="/terms#privacy"
-                className="block underline underline-offset-4 hover:text-blue-400"
-              >
-                מדיניות פרטיות
-              </Link>
-              <Link
-                href="/terms#cancellation"
-                className="block underline underline-offset-4 hover:text-blue-400"
-              >
-                ביטול עסקה והחזרים
-              </Link>
-              <Link
-                href="/terms#delivery"
-                className="block underline underline-offset-4 hover:text-blue-400"
-              >
-                מדיניות אספקה
-              </Link>
-              <Link
-                href="/terms#responsibility"
-                className="block underline underline-offset-4 hover:text-blue-400"
-              >
-                אחריות המוצר והשירות
-              </Link>
-              <Link
-                href="/accessibility"
-                className="block underline underline-offset-4 hover:text-blue-400"
-              >
-                הצהרת נגישות
-              </Link>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            <span className="text-xs uppercase font-bold tracking-widest text-blue-400">
-              עקבו אחרי
-            </span>
-            {socialLinks.map(({ href, label, icon: Icon }) => (
-              <a
-                key={label}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={label}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-blue-500/50 bg-blue-500/20 text-blue-400 transition hover:border-blue-400 hover:bg-blue-500/30 hover:text-blue-300"
-              >
-                <Icon className="h-4 w-4" />
-              </a>
-            ))}
+          <div className="justify-items-center space-y-2 text-sm text-slate-300">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-500">
+              מידע משפטי
+            </p>
+            <Link
+              href="/terms"
+              className="block underline underline-offset-4 hover:text-blue-400"
+            >
+              תקנון האתר
+            </Link>
+            <Link
+              href="/accessibility"
+              className="block underline underline-offset-4 hover:text-blue-400"
+            >
+              הצהרת נגישות
+            </Link>
           </div>
         </div>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        <span className="text-xs uppercase font-bold tracking-widest text-blue-400">
+          עקבו אחרי
+        </span>
+        {socialLinks.map(({ href, label, icon: Icon }) => (
+          <a
+            key={label}
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={label}
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-blue-500/50 bg-blue-500/20 text-blue-400 transition hover:border-blue-400 hover:bg-blue-500/30 hover:text-blue-300"
+          >
+            <Icon className="h-4 w-4" />
+          </a>
+        ))}
       </div>
 
       <p className="mt-8 px-6 text-center text-xs tracking-wider text-slate-600 sm:mt-10">
