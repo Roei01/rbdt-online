@@ -58,6 +58,29 @@ const purchaseSchema = z.object({
   returnTo: z.string().trim().url().optional(),
 });
 
+const extractWebhookOrderId = (body: Record<string, any>) =>
+  body?.custom ||
+  body?.orderId ||
+  body?.reference ||
+  body?.data?.custom ||
+  body?.data?.orderId ||
+  body?.payload?.custom;
+
+const findPurchaseForWebhook = async (paymentId?: string, orderId?: string) => {
+  if (paymentId) {
+    const purchaseByPaymentId = await Purchase.findOne({ paymentId });
+    if (purchaseByPaymentId) {
+      return purchaseByPaymentId;
+    }
+  }
+
+  if (orderId) {
+    return Purchase.findOne({ orderId });
+  }
+
+  return null;
+};
+
 router.post("/create", purchaseRateLimiter, async (req, res) => {
   try {
     const validation = purchaseSchema.safeParse(req.body);
@@ -71,6 +94,7 @@ router.post("/create", purchaseRateLimiter, async (req, res) => {
 
     const { email, fullName, phone, returnTo } = validation.data;
     const appBaseUrl = deriveAppBaseUrlFromRequest(req);
+    const orderId = `${DEFAULT_VIDEO_ID}:${email}`;
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
@@ -97,7 +121,7 @@ router.post("/create", purchaseRateLimiter, async (req, res) => {
         appBaseUrl,
         fullName,
         phone,
-        orderId: `${DEFAULT_VIDEO_ID}:${email}`,
+        orderId,
         returnTo,
       },
     );
@@ -114,6 +138,7 @@ router.post("/create", purchaseRateLimiter, async (req, res) => {
       customerFullName: fullName,
       customerPhone: phone,
       customerEmail: email,
+      orderId,
       status: "pending",
       appBaseUrl,
     });
@@ -147,6 +172,7 @@ router.post("/create", purchaseRateLimiter, async (req, res) => {
 router.post("/webhook", async (req, res) => {
   console.log("🔥 WEBHOOK RECEIVED:");
   console.log(JSON.stringify(req.body, null, 2));
+  const orderId = extractWebhookOrderId(req.body);
   const paymentId =
     req.body?.paymentId ||
     req.body?.id ||
@@ -160,6 +186,7 @@ router.post("/webhook", async (req, res) => {
 
   logger.info("Purchase webhook triggered.", {
     paymentId,
+    orderId,
     status,
     paymentMode: config.paymentMode,
   });
@@ -169,12 +196,19 @@ router.post("/webhook", async (req, res) => {
     typeof paymentId === "string" &&
     paymentId.startsWith("mock_")
   ) {
+    const mockPurchase = await findPurchaseForWebhook(paymentId, orderId);
+
     if (status === "failed") {
-      await Purchase.findOneAndUpdate({ paymentId }, { status: "failed" });
+      if (mockPurchase) {
+        mockPurchase.status = "failed";
+        await mockPurchase.save();
+      }
       return res.status(200).json({ ok: true, mocked: true, status: "failed" });
     }
 
-    const provisioned = await provisionPurchaseAccess(paymentId);
+    const provisioned = mockPurchase
+      ? await provisionPurchaseAccess(String(mockPurchase.paymentId))
+      : null;
     return res.status(200).json({
       ok: true,
       mocked: true,
@@ -190,15 +224,18 @@ router.post("/webhook", async (req, res) => {
     });
   }
 
-  if (paymentId && (status === "success" || status === "completed")) {
+  const purchase = await findPurchaseForWebhook(paymentId, orderId);
+
+  if (purchase && (status === "success" || status === "completed")) {
     try {
-      const provisioned = await provisionPurchaseAccess(paymentId);
+      const provisioned = await provisionPurchaseAccess(String(purchase.paymentId));
 
       if (!provisioned) {
         logger.warn(
-          "Webhook completed but no pending purchase found for paymentId",
+          "Webhook completed but no matching purchase could be provisioned",
           {
             paymentId,
+            orderId,
             body: req.body,
           },
         );
@@ -206,8 +243,9 @@ router.post("/webhook", async (req, res) => {
     } catch (error) {
       logger.error("Webhook provisioning error:", error);
     }
-  } else if (paymentId && status === "failed") {
-    await Purchase.findOneAndUpdate({ paymentId }, { status: "failed" });
+  } else if (purchase && status === "failed") {
+    purchase.status = "failed";
+    await purchase.save();
   }
 
   res.sendStatus(200);

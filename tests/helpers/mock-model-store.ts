@@ -8,6 +8,7 @@ type PurchaseRecord = BaseRecord & {
   userId?: string;
   videoId: string;
   paymentId: string;
+  orderId?: string;
   customerFullName: string;
   customerPhone: string;
   customerEmail: string;
@@ -149,6 +150,7 @@ export const mockPurchaseModel = {
       userId: data.userId,
       videoId: data.videoId ?? 'video_001',
       paymentId: data.paymentId ?? buildId(),
+      orderId: data.orderId,
       customerFullName: data.customerFullName ?? 'Mock Purchase',
       customerPhone: data.customerPhone ?? '0500000000',
       customerEmail: data.customerEmail ?? 'mock@example.com',

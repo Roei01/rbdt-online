@@ -101,4 +101,29 @@ describe('purchase webhook route', () => {
     expect(response.status).toBe(200);
     expect(purchase?.status).toBe('completed');
   });
+
+  it('should match webhook by custom orderId when paymentId differs', async () => {
+    await Purchase.create({
+      videoId: DEFAULT_VIDEO_ID,
+      paymentId: 'provider_generated_placeholder',
+      orderId: `${DEFAULT_VIDEO_ID}:webhook-order@example.com`,
+      customerFullName: 'Webhook Order',
+      customerPhone: '0500000003',
+      customerEmail: 'webhook-order@example.com',
+      status: 'pending',
+    });
+
+    const response = await request(app).post('/api/purchase/webhook').send({
+      productId: 'different_provider_id',
+      status: 'success',
+      custom: `${DEFAULT_VIDEO_ID}:webhook-order@example.com`,
+    });
+
+    const purchase = await Purchase.findOne({
+      orderId: `${DEFAULT_VIDEO_ID}:webhook-order@example.com`,
+    });
+
+    expect(response.status).toBe(200);
+    expect(purchase?.status).toBe('completed');
+  });
 });
