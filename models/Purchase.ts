@@ -4,6 +4,7 @@ export interface IPurchase extends Document {
   userId?: mongoose.Types.ObjectId;
   videoId: string;
   paymentId: string;
+  orderId?: string;
   customerFullName: string;
   customerPhone: string;
   customerEmail: string;
@@ -17,6 +18,7 @@ const PurchaseSchema = new Schema<IPurchase>({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   videoId: { type: String, required: true, index: true },
   paymentId: { type: String, required: true, unique: true, index: true },
+  orderId: { type: String, trim: true, index: true },
   customerFullName: { type: String, required: true, trim: true },
   customerPhone: { type: String, required: true, trim: true },
   customerEmail: { type: String, required: true, trim: true, lowercase: true, index: true },
