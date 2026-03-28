@@ -73,7 +73,7 @@ export const Hero = () => {
               </div>
 
               <div className="ml-auto max-w-md text-right">
-                <p className="text-base font-medium leading-7 text-white/90 sm:mt-4 sm:text-lg">
+                <p className="text-base font-semibold leading-7 text-white/90 sm:mt-4 sm:text-lg">
                   פיוז׳ן עם רותם ברוך
                   <br />
                   בואו לרקוד איתי בכל מקום, בכל זמן.
