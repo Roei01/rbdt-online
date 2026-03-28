@@ -9,6 +9,7 @@ export interface IUser extends Document {
   activeSessionId?: string;
   activeSessionStartedAt?: Date;
   activeSessionExpiresAt?: Date;
+  activeSessionDisconnectAt?: Date;
   createdAt: Date;
 }
 
@@ -21,6 +22,7 @@ const UserSchema = new Schema<IUser>({
   activeSessionId: { type: String },
   activeSessionStartedAt: { type: Date },
   activeSessionExpiresAt: { type: Date },
+  activeSessionDisconnectAt: { type: Date },
   createdAt: { type: Date, default: Date.now },
 });
 

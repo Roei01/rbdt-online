@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BUSINESS_CONTACT_EMAIL } from "@/lib/business-info";
 
 export const dynamic = "force-dynamic";
 
@@ -38,7 +39,14 @@ export default function SuccessPage({ searchParams }: SuccessPageProps) {
         </div>
 
         <p className="mt-4 text-sm text-slate-500">
-          אם עדיין לא התקבל מייל, אפשר לפנות לתמיכה.
+          אם עדיין לא התקבל מייל, אפשר לפנות לתמיכה ב־
+          <a
+            href={`mailto:${BUSINESS_CONTACT_EMAIL}`}
+            className="font-semibold text-slate-700 underline underline-offset-4"
+          >
+            {BUSINESS_CONTACT_EMAIL}
+          </a>
+          .
         </p>
 
         <div className="mt-8 flex flex-wrap justify-center gap-3">

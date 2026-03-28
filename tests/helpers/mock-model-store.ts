@@ -25,6 +25,7 @@ type UserRecord = BaseRecord & {
   activeSessionId?: string;
   activeSessionStartedAt?: Date;
   activeSessionExpiresAt?: Date;
+  activeSessionDisconnectAt?: Date;
 };
 
 const purchases: PurchaseRecord[] = [];
@@ -195,6 +196,7 @@ export const mockUserModel = {
       activeSessionId: data.activeSessionId,
       activeSessionStartedAt: data.activeSessionStartedAt,
       activeSessionExpiresAt: data.activeSessionExpiresAt,
+      activeSessionDisconnectAt: data.activeSessionDisconnectAt,
     });
     users.push(user);
     return user;

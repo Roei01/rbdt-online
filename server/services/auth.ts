@@ -1,10 +1,11 @@
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
-import crypto from 'crypto';
-import { config } from '../config/env';
-import { User, type IUser } from '../../models/User';
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+import crypto from "crypto";
+import { config } from "../config/env";
+import { User, type IUser } from "../../models/User";
 
-export const SESSION_DURATION_MS = 2 * 60 * 1000;
+export const SESSION_DURATION_MS = 2 * 60 * 60 * 1000;
+export const SESSION_DISCONNECT_GRACE_MS = 15 * 1000;
 
 export type AuthTokenPayload = {
   userId: string;
@@ -13,7 +14,7 @@ export type AuthTokenPayload = {
 };
 
 export const generateTempPassword = (length = 10): string => {
-  return crypto.randomBytes(length).toString('hex').slice(0, length);
+  return crypto.randomBytes(length).toString("hex").slice(0, length);
 };
 
 export const hashPassword = async (password: string): Promise<string> => {
@@ -21,12 +22,17 @@ export const hashPassword = async (password: string): Promise<string> => {
   return bcrypt.hash(password, salt);
 };
 
-export const comparePassword = async (password: string, hash: string): Promise<boolean> => {
+export const comparePassword = async (
+  password: string,
+  hash: string,
+): Promise<boolean> => {
   return bcrypt.compare(password, hash);
 };
 
 export const generateToken = (payload: AuthTokenPayload): string => {
-  return jwt.sign(payload, config.jwtSecret, { expiresIn: '24h' });
+  return jwt.sign(payload, config.jwtSecret, {
+    expiresIn: Math.floor(SESSION_DURATION_MS / 1000),
+  });
 };
 
 export const verifyToken = (token: string): AuthTokenPayload => {
@@ -41,17 +47,24 @@ const getSessionExpiryDate = () => {
   return new Date(Date.now() + SESSION_DURATION_MS);
 };
 
+const getSessionDisconnectGraceDate = () => {
+  return new Date(Date.now() + SESSION_DISCONNECT_GRACE_MS);
+};
+
 const clearSessionFields = (user: IUser) => {
   user.activeSessionId = undefined;
   user.activeSessionStartedAt = undefined;
   user.activeSessionExpiresAt = undefined;
+  user.activeSessionDisconnectAt = undefined;
 };
 
 const clearExpiredSessionIfNeeded = async (user: IUser) => {
   if (
     user.activeSessionId &&
-    user.activeSessionExpiresAt &&
-    user.activeSessionExpiresAt.getTime() <= Date.now()
+    ((user.activeSessionExpiresAt &&
+      user.activeSessionExpiresAt.getTime() <= Date.now()) ||
+      (user.activeSessionDisconnectAt &&
+        user.activeSessionDisconnectAt.getTime() <= Date.now()))
   ) {
     clearSessionFields(user);
     await user.save();
@@ -76,7 +89,9 @@ export const hasConflictingActiveSession = async (
   return user.activeSessionId !== currentSessionId;
 };
 
-export const getActiveSessionRemainingSeconds = async (userId: string): Promise<number> => {
+export const getActiveSessionRemainingSeconds = async (
+  userId: string,
+): Promise<number> => {
   const user = await User.findById(userId);
   if (!user) {
     return 0;
@@ -88,22 +103,29 @@ export const getActiveSessionRemainingSeconds = async (userId: string): Promise<
     return 0;
   }
 
-  return Math.max(
-    0,
-    Math.ceil((user.activeSessionExpiresAt.getTime() - Date.now()) / 1000),
-  );
+  const sessionDeadline = user.activeSessionDisconnectAt
+    ? Math.min(
+        user.activeSessionExpiresAt.getTime(),
+        user.activeSessionDisconnectAt.getTime(),
+      )
+    : user.activeSessionExpiresAt.getTime();
+
+  return Math.max(0, Math.ceil((sessionDeadline - Date.now()) / 1000));
 };
 
-export const startExclusiveSession = async (userId: string): Promise<string> => {
+export const startExclusiveSession = async (
+  userId: string,
+): Promise<string> => {
   const user = await User.findById(userId);
   if (!user) {
-    throw new Error('User not found.');
+    throw new Error("User not found.");
   }
 
   const sessionId = generateSessionId();
   user.activeSessionId = sessionId;
   user.activeSessionStartedAt = new Date();
   user.activeSessionExpiresAt = getSessionExpiryDate();
+  user.activeSessionDisconnectAt = undefined;
   user.ipAddress = undefined;
   user.allowedIps = [];
   await user.save();
@@ -111,7 +133,10 @@ export const startExclusiveSession = async (userId: string): Promise<string> => 
   return sessionId;
 };
 
-export const releaseActiveSession = async (userId: string, sessionId?: string) => {
+export const releaseActiveSession = async (
+  userId: string,
+  sessionId?: string,
+) => {
   const user = await User.findById(userId);
   if (!user) {
     return;
@@ -131,7 +156,10 @@ export const releaseActiveSession = async (userId: string, sessionId?: string) =
   await user.save();
 };
 
-export const isSessionActive = async (userId: string, sessionId: string): Promise<boolean> => {
+export const isSessionActive = async (
+  userId: string,
+  sessionId: string,
+): Promise<boolean> => {
   const user = await User.findById(userId);
   if (!user) {
     return false;
@@ -142,7 +170,10 @@ export const isSessionActive = async (userId: string, sessionId: string): Promis
   return user.activeSessionId === sessionId;
 };
 
-export const touchActiveSession = async (userId: string, sessionId: string): Promise<void> => {
+export const touchActiveSession = async (
+  userId: string,
+  sessionId: string,
+): Promise<void> => {
   const user = await User.findById(userId);
   if (!user) {
     return;
@@ -154,6 +185,29 @@ export const touchActiveSession = async (userId: string, sessionId: string): Pro
     return;
   }
 
-  user.activeSessionExpiresAt = getSessionExpiryDate();
+  if (!user.activeSessionDisconnectAt) {
+    return;
+  }
+
+  user.activeSessionDisconnectAt = undefined;
+  await user.save();
+};
+
+export const markSessionDisconnecting = async (
+  userId: string,
+  sessionId: string,
+): Promise<void> => {
+  const user = await User.findById(userId);
+  if (!user) {
+    return;
+  }
+
+  await clearExpiredSessionIfNeeded(user);
+
+  if (user.activeSessionId !== sessionId) {
+    return;
+  }
+
+  user.activeSessionDisconnectAt = getSessionDisconnectGraceDate();
   await user.save();
 };
