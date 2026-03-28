@@ -202,11 +202,12 @@ export const Purchase = () => {
               <input
                 id="phone"
                 type="tel"
-                placeholder="050-000-0000"
+                placeholder="05x-xxx-xxxx"
                 required
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-medium text-slate-900 placeholder-slate-400 transition-colors focus:border-blue-400 md:px-5 md:py-3.5"
+                dir="rtl"
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-right font-medium text-slate-900 placeholder-slate-400 transition-colors focus:border-blue-400 md:px-5 md:py-3.5"
               />
             </div>
 
