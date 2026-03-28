@@ -22,7 +22,7 @@ export default function SuccessPage({ searchParams }: SuccessPageProps) {
           התשלום עבר בהצלחה
         </h1>
         <p className="mt-4 text-lg font-medium text-slate-600">
-          תודה שרכשת את שיעור הריקוד.
+          תודה שרכשת את השיעור.
         </p>
         <p className="mt-3 text-base leading-7 text-slate-500">
           בתוך כמה דקות יישלח אלייך מייל עם פרטי ההתחברות וקישור הגישה.
@@ -39,14 +39,13 @@ export default function SuccessPage({ searchParams }: SuccessPageProps) {
         </div>
 
         <p className="mt-4 text-sm text-slate-500">
-          אם עדיין לא התקבל מייל, אפשר לפנות לתמיכה ב־
+          ליצירת קשר:{" "}
           <a
             href={`mailto:${BUSINESS_CONTACT_EMAIL}`}
             className="font-semibold text-slate-700 underline underline-offset-4"
           >
             {BUSINESS_CONTACT_EMAIL}
           </a>
-          .
         </p>
 
         <div className="mt-8 flex flex-wrap justify-center gap-3">
