@@ -12,9 +12,13 @@ import { logger } from "../lib/logger";
 import { config } from "../config/env";
 import {
   DEFAULT_VIDEO_ID,
-  DEFAULT_VIDEO_PRICE_ILS,
-  DEFAULT_VIDEO_TITLE,
+  DEFAULT_VIDEO_SLUG,
 } from "../../lib/catalog";
+import {
+  getAcceptedPurchaseVideoIds,
+  getActiveVideoBySlug,
+  getPurchaseVideoId,
+} from "../services/videos";
 
 const router = express.Router();
 
@@ -56,6 +60,7 @@ const purchaseSchema = z.object({
   phone: z.string().trim().min(9),
   email: z.string().email(),
   returnTo: z.string().trim().url().optional(),
+  videoSlug: z.string().trim().min(1).optional().default(DEFAULT_VIDEO_SLUG),
   paymentMethod: z.enum(["credit_card", "hosted"]).optional().default("credit_card"),
 });
 
@@ -122,15 +127,26 @@ router.post("/create", purchaseRateLimiter, async (req, res) => {
       });
     }
 
-    const { email, fullName, phone, returnTo, paymentMethod } = validation.data;
+    const { email, fullName, phone, returnTo, paymentMethod, videoSlug } = validation.data;
     const appBaseUrl = deriveAppBaseUrlFromRequest(req);
-    const orderId = `${DEFAULT_VIDEO_ID}:${email}`;
+    const video = await getActiveVideoBySlug(videoSlug);
+
+    if (!video) {
+      return res.status(404).json({
+        code: "VIDEO_UNAVAILABLE",
+        message: "Video not found.",
+      });
+    }
+
+    const purchaseVideoId = getPurchaseVideoId(video);
+    const acceptedPurchaseVideoIds = getAcceptedPurchaseVideoIds(video.slug);
+    const orderId = `${purchaseVideoId}:${email}`;
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
       const existingPurchase = await Purchase.findOne({
         userId: existingUser._id,
-        videoId: DEFAULT_VIDEO_ID,
+        videoId: { $in: acceptedPurchaseVideoIds },
         status: "completed",
       });
 
@@ -162,12 +178,12 @@ router.post("/create", purchaseRateLimiter, async (req, res) => {
 
       await Purchase.deleteMany({
         customerEmail: email,
-        videoId: DEFAULT_VIDEO_ID,
+        videoId: { $in: acceptedPurchaseVideoIds },
         status: "pending",
       });
 
       await Purchase.create({
-        videoId: DEFAULT_VIDEO_ID,
+        videoId: purchaseVideoId,
         paymentId: tempPaymentId,
         customerFullName: fullName,
         customerPhone: phone,
@@ -186,8 +202,8 @@ router.post("/create", purchaseRateLimiter, async (req, res) => {
 
     const payment = await createGreenInvoicePayment(
       email,
-      DEFAULT_VIDEO_PRICE_ILS,
-      DEFAULT_VIDEO_TITLE,
+      video.price,
+      video.title,
       {
         appBaseUrl,
         fullName,
@@ -199,12 +215,12 @@ router.post("/create", purchaseRateLimiter, async (req, res) => {
 
     await Purchase.deleteMany({
       customerEmail: email,
-      videoId: DEFAULT_VIDEO_ID,
+      videoId: { $in: acceptedPurchaseVideoIds },
       status: "pending",
     });
 
     await Purchase.create({
-      videoId: DEFAULT_VIDEO_ID,
+      videoId: purchaseVideoId,
       paymentId: payment.paymentId,
       customerFullName: fullName,
       customerPhone: phone,

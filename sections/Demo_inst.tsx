@@ -9,7 +9,15 @@ const DEMO_VIDEO_URL =
   "https://myrbdt.b-cdn.net/9F67D997-37AB-423E-9BB1-D12FB8D53455%202.mov";
 const ENABLE_DEMO_VIDEO_MOTION = true;
 
-const Demo_inst = () => {
+type DemoInstProps = {
+  previewUrl?: string;
+  title?: string;
+};
+
+const Demo_inst = ({
+  previewUrl = DEMO_VIDEO_URL,
+  title = "סרטון מלא של הריקוד",
+}: DemoInstProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -53,7 +61,7 @@ const Demo_inst = () => {
           className="relative z-10 text-center"
         >
           <h2 className="mx-auto max-w-xl text-[clamp(2rem,5vw,4.25rem)] font-black leading-[1.02] tracking-[-0.04em] text-slate-900">
-            <span className="block">סרטון מלא של הריקוד</span>
+            <span className="block">{title}</span>
           </h2>
         </motion.div>
 
@@ -68,7 +76,7 @@ const Demo_inst = () => {
               <video
                 ref={videoRef}
                 className="absolute inset-0 h-full w-full object-cover"
-                src={DEMO_VIDEO_URL}
+                src={previewUrl}
                 autoPlay={ENABLE_DEMO_VIDEO_MOTION}
                 loop={ENABLE_DEMO_VIDEO_MOTION}
                 muted

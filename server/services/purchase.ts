@@ -5,6 +5,7 @@ import { sendAccessEmail } from "./email";
 import { generateTempPassword, hashPassword } from "./auth";
 import { config } from "../config/env";
 import { logger } from "../lib/logger";
+import { normalizeOwnedVideoId } from "./videos";
 
 const normalizeBaseUrl = (url: string) => url.replace(/\/$/, "");
 
@@ -86,7 +87,7 @@ export const provisionPurchaseAccess = async (paymentId: string) => {
     return {
       email: user.email,
       username: user.username,
-      videoId: DEFAULT_VIDEO_ID,
+      videoId: normalizeOwnedVideoId(String(purchase.videoId ?? DEFAULT_VIDEO_ID)),
     };
   }
 
@@ -114,6 +115,6 @@ export const provisionPurchaseAccess = async (paymentId: string) => {
   return {
     email: user.email,
     username: user.username,
-    videoId: DEFAULT_VIDEO_ID,
+    videoId: normalizeOwnedVideoId(String(purchase.videoId ?? DEFAULT_VIDEO_ID)),
   };
 };

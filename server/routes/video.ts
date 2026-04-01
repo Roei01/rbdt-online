@@ -6,7 +6,7 @@ import {
   authenticate,
   type AuthenticatedRequest,
 } from "../middleware/authenticate";
-import { DEFAULT_VIDEO_ID } from "../../lib/catalog";
+import { getAcceptedPurchaseVideoIds, getActiveVideoBySlug } from "../services/videos";
 
 const router = express.Router();
 const CLOUDINARY_PREVIEW_URL =
@@ -84,11 +84,17 @@ router.get(
   "/stream/:videoId",
   authenticate,
   async (req: AuthenticatedRequest, res) => {
-    const { videoId } = req.params;
+    const videoIdParam = Array.isArray(req.params.videoId)
+      ? req.params.videoId[0]
+      : req.params.videoId;
+    const video = await getActiveVideoBySlug(videoIdParam);
+    const acceptedVideoIds = getAcceptedPurchaseVideoIds(
+      video?.slug ?? videoIdParam
+    );
 
     const purchase = await Purchase.findOne({
       userId: req.user?.userId,
-      videoId,
+      videoId: { $in: acceptedVideoIds },
       status: "completed",
     });
 
@@ -121,9 +127,17 @@ router.get(
   "/access/:videoId",
   authenticate,
   async (req: AuthenticatedRequest, res) => {
+    const videoIdParam = Array.isArray(req.params.videoId)
+      ? req.params.videoId[0]
+      : req.params.videoId;
+    const video = await getActiveVideoBySlug(videoIdParam);
+    const acceptedVideoIds = getAcceptedPurchaseVideoIds(
+      video?.slug ?? videoIdParam
+    );
+
     const purchase = await Purchase.findOne({
       userId: req.user?.userId,
-      videoId: req.params.videoId || DEFAULT_VIDEO_ID,
+      videoId: { $in: acceptedVideoIds },
       status: "completed",
     });
 

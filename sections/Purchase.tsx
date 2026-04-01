@@ -16,7 +16,11 @@ import {
 } from "@/lib/api-client";
 import { PaymentErrorCard } from "@/components/errors/PaymentErrorCard";
 import { PurchaseFaq } from "@/components/purchase/PurchaseFaq";
-import { DEFAULT_VIDEO_PRICE_ILS } from "@/lib/catalog";
+import {
+  DEFAULT_VIDEO_PRICE_ILS,
+  DEFAULT_VIDEO_SLUG,
+  DEFAULT_VIDEO_TITLE,
+} from "@/lib/catalog";
 import {
   BUSINESS_ADDRESS,
   BUSINESS_CONTACT_EMAIL,
@@ -26,7 +30,17 @@ import {
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export const Purchase = () => {
+type PurchaseProps = {
+  videoSlug?: string;
+  price?: number;
+  title?: string;
+};
+
+export const Purchase = ({
+  videoSlug = DEFAULT_VIDEO_SLUG,
+  price = DEFAULT_VIDEO_PRICE_ILS,
+  title = DEFAULT_VIDEO_TITLE,
+}: PurchaseProps) => {
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -71,6 +85,7 @@ export const Purchase = () => {
         fullName: fullName.trim(),
         phone: phone.trim(),
         email: email.trim(),
+        videoSlug,
         paymentMethod: method,
       });
 
@@ -170,9 +185,12 @@ export const Purchase = () => {
             </p>
             <div className="flex items-baseline justify-center gap-2">
               <span className="font-display text-5xl font-black tracking-tight text-slate-900 sm:text-6xl md:text-7xl md:tracking-tighter">
-                ₪{DEFAULT_VIDEO_PRICE_ILS}
+                ₪{price}
               </span>
             </div>
+            <p className="mt-2 text-sm font-medium text-slate-500 md:text-base">
+              {title}
+            </p>
           </div>
 
           <form onSubmit={handlePurchase} className="space-y-3">

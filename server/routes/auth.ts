@@ -16,8 +16,9 @@ import {
   authenticate,
   type AuthenticatedRequest,
 } from "../middleware/authenticate";
-import { DEFAULT_VIDEO_ID } from "../../lib/catalog";
+import { DEFAULT_VIDEO_SLUG } from "../../lib/catalog";
 import { authRateLimiter } from "../middleware/rateLimit";
+import { normalizeOwnedVideoId } from "../services/videos";
 
 const router = express.Router();
 
@@ -104,7 +105,9 @@ router.post("/login", authRateLimiter, async (req, res) => {
     status: "completed",
   }).lean();
 
-  const ownedVideoIds = purchases.map((purchase) => String(purchase.videoId));
+  const ownedVideoIds = Array.from(
+    new Set(purchases.map((purchase) => normalizeOwnedVideoId(String(purchase.videoId))))
+  );
 
   res.json({
     token,
@@ -115,7 +118,7 @@ router.post("/login", authRateLimiter, async (req, res) => {
     },
     sessionExpiresAt: user.activeSessionExpiresAt?.toISOString() ?? null,
     access: {
-      defaultVideo: ownedVideoIds.includes(DEFAULT_VIDEO_ID),
+      defaultVideo: ownedVideoIds.includes(DEFAULT_VIDEO_SLUG),
       videos: ownedVideoIds,
     },
   });
@@ -136,7 +139,9 @@ router.get("/me", authenticate, async (req: AuthenticatedRequest, res) => {
     status: "completed",
   }).lean();
 
-  const ownedVideoIds = purchases.map((purchase) => String(purchase.videoId));
+  const ownedVideoIds = Array.from(
+    new Set(purchases.map((purchase) => normalizeOwnedVideoId(String(purchase.videoId))))
+  );
 
   return res.json({
     user: {
@@ -146,7 +151,7 @@ router.get("/me", authenticate, async (req: AuthenticatedRequest, res) => {
     },
     sessionExpiresAt: user.activeSessionExpiresAt?.toISOString() ?? null,
     access: {
-      defaultVideo: ownedVideoIds.includes(DEFAULT_VIDEO_ID),
+      defaultVideo: ownedVideoIds.includes(DEFAULT_VIDEO_SLUG),
       videos: ownedVideoIds,
     },
   });
