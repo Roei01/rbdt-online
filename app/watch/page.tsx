@@ -99,7 +99,7 @@ function WatchContent() {
       tabIndex={-1}
       className="min-h-screen overflow-hidden bg-[linear-gradient(135deg,#f8fbff_0%,#ffffff_45%,#fff5ef_100%)] pt-6 text-slate-900 sm:pt-8"
     >
-      <div className="mx-auto max-w-4xl px-4 sm:px-6 ">
+      <div className="mx-auto max-w-4xl px-2 sm:px-6 ">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -244,7 +244,7 @@ function WatchContent() {
                       {video.description}
                     </p>
                     <p className="font-display text-sm font-bold uppercase tracking-[0.14em] text-emerald-600">
-                      לצפייה בשיעור לחץ
+                      זמין לצפייה
                     </p>
                   </div>
                 </Link>

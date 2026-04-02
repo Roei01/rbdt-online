@@ -114,7 +114,7 @@ function WatchVideoContent({ slug }: { slug: string }) {
       tabIndex={-1}
       className="min-h-screen overflow-hidden bg-[linear-gradient(135deg,#f8fbff_0%,#ffffff_45%,#fff5ef_100%)] pt-6 text-slate-900 sm:pt-8"
     >
-      <div className="mx-auto max-w-5xl px-3 sm:px-6 ">
+      <div className="mx-auto max-w-4xl px-2 sm:px-6 ">
         <div className="mb-4">
           <Link
             href="/watch"
@@ -141,10 +141,11 @@ function WatchVideoContent({ slug }: { slug: string }) {
           </div>
 
           <div className="mt-7 overflow-hidden rounded-[1.9rem] border-[4px] border-slate-300/90 bg-white p-2 shadow-[0_18px_45px_rgba(15,23,42,0.1)] sm:mt-8 sm:p-3">
-            <div className="relative aspect-[] overflow-hidden rounded-[1.5rem] bg-slate-950 sm:aspect-video">
+            <div className="relative aspect-video overflow-hidden rounded-[1.5rem] bg-slate-950">
               {!videoReady ? (
                 <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-slate-800 via-slate-700 to-slate-800" />
               ) : null}
+
               <iframe
                 className="absolute inset-0 h-full w-full border-0"
                 src={video.videoUrl}
