@@ -3,17 +3,20 @@ export type VideoChapter = {
   label: string;
 };
 
-export type VideoRecord = {
+export type VideoCardRecord = {
   id: string;
   slug: string;
   title: string;
   description: string;
-  watchDescription?: string;
-  classBreakdown: VideoChapter[];
   price: number;
   level: string;
-  videoUrl: string;
-  previewUrl: string;
   imageUrl: string;
   isActive: boolean;
+};
+
+export type VideoRecord = VideoCardRecord & {
+  watchDescription?: string;
+  classBreakdown: VideoChapter[];
+  videoUrl: string;
+  previewUrl: string;
 };

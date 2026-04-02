@@ -102,7 +102,7 @@ const Demo_inst = ({
                 src={previewUrl}
                 controls
                 playsInline
-                preload="auto"
+                preload="metadata"
                 controlsList="nodownload noplaybackrate"
                 disablePictureInPicture
                 onContextMenu={(e) => e.preventDefault()}

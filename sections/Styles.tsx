@@ -4,19 +4,19 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { ArrowUpRight, Clock3 } from "lucide-react";
-import { type VideoRecord } from "@/lib/video-types";
-import { getCachedVideos } from "@/lib/client-video-cache";
+import { type VideoCardRecord } from "@/lib/video-types";
+import { getCachedVideoCards } from "@/lib/client-video-cache";
 
 export const Styles = () => {
-  const [videos, setVideos] = useState<VideoRecord[]>([]);
+  const [videos, setVideos] = useState<VideoCardRecord[]>([]);
 
   useEffect(() => {
     let cancelled = false;
 
-    void getCachedVideos()
+    void getCachedVideoCards()
       .then((response) => {
         if (!cancelled) {
-          setVideos([...response].reverse());
+          setVideos(response);
         }
       })
       .catch(() => {
@@ -79,11 +79,14 @@ export const Styles = () => {
                   className="group block h-full overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.10)] transition hover:-translate-y-1 hover:shadow-[0_25px_70px_rgba(15,23,42,0.14)]"
                 >
                   <div className="relative aspect-[11/14] min-[294px]:aspect-[5/6] min-[600px]:aspect-[5/6]">
-                    <img
-                      className="h-full w-full object-cover object-center transition duration-500 group-hover:scale-105"
+                    <Image
                       src={video.imageUrl}
                       alt={video.title}
-                      loading="lazy"
+                      fill
+                      priority={i === 0}
+                      unoptimized
+                      sizes="(max-width: 767px) 100vw, (max-width: 1279px) 50vw, 50vw"
+                      className="object-cover object-center transition duration-500 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/30 to-transparent" />
                     <div className="absolute inset-x-0 top-3 flex justify-center min-[294px]:top-4">

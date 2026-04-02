@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { Video, type IVideo } from "../../models/Video";
-import { type VideoRecord } from "../../lib/video-types";
+import { type VideoCardRecord, type VideoRecord } from "../../lib/video-types";
 import {
   DEFAULT_VIDEO_DESCRIPTION,
   DEFAULT_VIDEO_ID,
@@ -32,19 +32,74 @@ const DEFAULT_VIDEO_SEED = {
   isActive: true,
 };
 
-const serializeVideo = (video: IVideo): VideoRecord => ({
+type VideoSource = {
+  _id: mongoose.Types.ObjectId | string;
+  slug: string;
+  title: string;
+  description: string;
+  watchDescription?: string;
+  classBreakdown?: IVideo["classBreakdown"];
+  price: number;
+  level: string;
+  videoUrl?: string;
+  previewUrl?: string;
+  imageUrl?: string;
+  isActive: boolean;
+  videoId?: string;
+};
+
+const CARD_VIDEO_PROJECTION = {
+  slug: 1,
+  title: 1,
+  description: 1,
+  price: 1,
+  level: 1,
+  imageUrl: 1,
+  isActive: 1,
+  createdAt: 1,
+} as const;
+
+const FULL_VIDEO_PROJECTION = {
+  slug: 1,
+  title: 1,
+  description: 1,
+  watchDescription: 1,
+  classBreakdown: 1,
+  price: 1,
+  level: 1,
+  videoUrl: 1,
+  previewUrl: 1,
+  imageUrl: 1,
+  isActive: 1,
+} as const;
+
+let ensureDefaultVideoPromise: Promise<void> | null = null;
+let initialized = false;
+const VIDEO_LIST_CACHE_TTL_MS = 60_000;
+let videoCardsCache:
+  | { value: VideoCardRecord[]; expiresAt: number }
+  | null = null;
+let videosCache:
+  | { value: VideoRecord[]; expiresAt: number }
+  | null = null;
+
+const serializeVideoCard = (video: VideoSource): VideoCardRecord => ({
   id: String(video._id),
   slug: video.slug,
   title: video.title,
   description: video.description,
-  watchDescription: video.watchDescription || video.description,
-  classBreakdown: Array.isArray(video.classBreakdown) ? video.classBreakdown : [],
   price: video.price,
   level: video.level,
-  videoUrl: video.videoUrl,
-  previewUrl: video.previewUrl,
   imageUrl: video.imageUrl || DEFAULT_VIDEO_IMAGE_URL,
   isActive: video.isActive,
+});
+
+const serializeVideo = (video: VideoSource): VideoRecord => ({
+  ...serializeVideoCard(video),
+  watchDescription: video.watchDescription || video.description,
+  classBreakdown: Array.isArray(video.classBreakdown) ? video.classBreakdown : [],
+  videoUrl: video.videoUrl || DEFAULT_VIDEO_PLAYER_URL,
+  previewUrl: video.previewUrl || DEFAULT_VIDEO_PREVIEW_URL,
 });
 
 type PurchaseVideoReference = mongoose.Types.ObjectId | string;
@@ -131,6 +186,7 @@ export const resolveOwnedVideoSlugs = async (
   const nonDefaultLegacyValues = legacyValues.filter(
     (value) => value !== DEFAULT_VIDEO_ID && value !== DEFAULT_VIDEO_SLUG,
   );
+  const legacySet = new Set(nonDefaultLegacyValues);
 
   if (nonDefaultLegacyValues.length > 0) {
     const legacyVideos = await Video.find({
@@ -138,7 +194,9 @@ export const resolveOwnedVideoSlugs = async (
         { slug: { $in: nonDefaultLegacyValues } },
         { videoId: { $in: nonDefaultLegacyValues } },
       ],
-    }).select({ slug: 1, videoId: 1 });
+    })
+      .select({ slug: 1, videoId: 1 })
+      .lean<Array<Pick<VideoSource, "slug" | "videoId">>>();
 
     const legacyMap = new Map<string, string>();
     for (const video of legacyVideos) {
@@ -158,7 +216,7 @@ export const resolveOwnedVideoSlugs = async (
         continue;
       }
 
-      if (nonDefaultLegacyValues.includes(rawVideoId)) {
+      if (legacySet.has(rawVideoId)) {
         orderedSlugs.set(index, legacyMap.get(rawVideoId) ?? rawVideoId);
       }
     }
@@ -167,7 +225,9 @@ export const resolveOwnedVideoSlugs = async (
   if (objectIds.length > 0) {
     const videos = await Video.find({
       _id: { $in: asUniqueLookupValues(objectIds) },
-    }).select({ slug: 1 });
+    })
+      .select({ slug: 1 })
+      .lean<Array<Pick<VideoSource, "_id" | "slug">>>();
 
     const objectIdToSlug = new Map<string, string>();
     for (const video of videos) {
@@ -200,55 +260,137 @@ export const resolveOwnedVideoSlugs = async (
 };
 
 export const ensureDefaultVideoExists = async () => {
-  await Video.findOneAndUpdate(
-    { slug: DEFAULT_VIDEO_SLUG },
-    { $setOnInsert: DEFAULT_VIDEO_SEED },
-    { upsert: true, new: true },
-  );
+  if (initialized) {
+    return;
+  }
 
-  await Video.findOneAndUpdate(
-    {
-      slug: DEFAULT_VIDEO_SLUG,
-      $or: [{ imageUrl: { $exists: false } }, { imageUrl: "" }],
-    },
-    { $set: { imageUrl: DEFAULT_VIDEO_IMAGE_URL } },
-  );
+  if (ensureDefaultVideoPromise) {
+    await ensureDefaultVideoPromise;
+    return;
+  }
 
-  await Video.findOneAndUpdate(
-    {
-      slug: DEFAULT_VIDEO_SLUG,
-      $or: [{ videoId: { $exists: false } }, { videoId: "" }],
-    },
-    { $set: { videoId: DEFAULT_VIDEO_ID } },
-  );
+  if (!ensureDefaultVideoPromise) {
+    ensureDefaultVideoPromise = (async () => {
+      await Video.updateOne(
+        { slug: DEFAULT_VIDEO_SLUG },
+        { $setOnInsert: DEFAULT_VIDEO_SEED },
+        { upsert: true },
+      );
 
-  await Video.findOneAndUpdate(
-    {
-      slug: DEFAULT_VIDEO_SLUG,
-      $or: [{ watchDescription: { $exists: false } }, { watchDescription: "" }],
-    },
-    { $set: { watchDescription: DEFAULT_VIDEO_DESCRIPTION } },
-  );
+      await Promise.all([
+        Video.updateOne(
+          {
+            slug: DEFAULT_VIDEO_SLUG,
+            $or: [{ imageUrl: { $exists: false } }, { imageUrl: "" }],
+          },
+          { $set: { imageUrl: DEFAULT_VIDEO_IMAGE_URL } },
+        ),
+        Video.updateOne(
+          {
+            slug: DEFAULT_VIDEO_SLUG,
+            $or: [{ videoId: { $exists: false } }, { videoId: "" }],
+          },
+          { $set: { videoId: DEFAULT_VIDEO_ID } },
+        ),
+        Video.updateOne(
+          {
+            slug: DEFAULT_VIDEO_SLUG,
+            $or: [{ watchDescription: { $exists: false } }, { watchDescription: "" }],
+          },
+          { $set: { watchDescription: DEFAULT_VIDEO_DESCRIPTION } },
+        ),
+        Video.updateOne(
+          {
+            slug: DEFAULT_VIDEO_SLUG,
+            $or: [{ classBreakdown: { $exists: false } }, { classBreakdown: { $size: 0 } }],
+          },
+          { $set: { classBreakdown: DEFAULT_VIDEO_SEED.classBreakdown } },
+        ),
+      ]);
+      initialized = true;
+    })().catch((error) => {
+      initialized = false;
+      ensureDefaultVideoPromise = null;
+      throw error;
+    }).finally(() => {
+      if (initialized) {
+        ensureDefaultVideoPromise = null;
+      }
+    });
+  }
 
-  await Video.findOneAndUpdate(
-    {
-      slug: DEFAULT_VIDEO_SLUG,
-      $or: [{ classBreakdown: { $exists: false } }, { classBreakdown: { $size: 0 } }],
-    },
-    { $set: { classBreakdown: DEFAULT_VIDEO_SEED.classBreakdown } },
-  );
+  await ensureDefaultVideoPromise;
 };
 
 export const getActiveVideoDocumentBySlug = async (slug: string) => {
   await ensureDefaultVideoExists();
-  return Video.findOne({ slug, isActive: true });
+  return Video.findOne({ slug, isActive: true })
+    .select(FULL_VIDEO_PROJECTION)
+    .lean<VideoSource | null>();
+};
+
+const getCachedValue = <T>(
+  cacheEntry: { value: T; expiresAt: number } | null,
+) => {
+  if (!cacheEntry) {
+    return null;
+  }
+
+  if (cacheEntry.expiresAt <= Date.now()) {
+    return null;
+  }
+
+  return cacheEntry.value;
+};
+
+const fetchActiveVideoCards = async () => {
+  await ensureDefaultVideoExists();
+
+  const videos = await Video.find({ isActive: true })
+    .select(CARD_VIDEO_PROJECTION)
+    .sort({ createdAt: -1 })
+    .lean<VideoSource[]>();
+
+  return videos.map(serializeVideoCard);
+};
+
+export const listActiveVideoCards = async () => {
+  const cachedValue = getCachedValue(videoCardsCache);
+  if (cachedValue) {
+    return cachedValue;
+  }
+
+  const value = await fetchActiveVideoCards();
+  videoCardsCache = {
+    value,
+    expiresAt: Date.now() + VIDEO_LIST_CACHE_TTL_MS,
+  };
+  return value;
+};
+
+const fetchActiveVideos = async () => {
+  await ensureDefaultVideoExists();
+
+  const videos = await Video.find({ isActive: true })
+    .select(FULL_VIDEO_PROJECTION)
+    .sort({ createdAt: 1 })
+    .lean<VideoSource[]>();
+
+  return videos.map(serializeVideo);
 };
 
 export const listActiveVideos = async () => {
-  await ensureDefaultVideoExists();
+  const cachedValue = getCachedValue(videosCache);
+  if (cachedValue) {
+    return cachedValue;
+  }
 
-  const videos = await Video.find({ isActive: true }).sort({ createdAt: 1 });
-  return videos.map(serializeVideo);
+  const value = await fetchActiveVideos();
+  videosCache = {
+    value,
+    expiresAt: Date.now() + VIDEO_LIST_CACHE_TTL_MS,
+  };
+  return value;
 };
 
 export const getActiveVideoBySlug = async (slug: string) => {

@@ -45,4 +45,7 @@ const VideoSchema = new Schema<IVideo>({
   createdAt: { type: Date, default: Date.now },
 });
 
+VideoSchema.index({ createdAt: -1 });
+VideoSchema.index({ isActive: 1, createdAt: -1 });
+
 export const Video = mongoose.models.Video || mongoose.model<IVideo>('Video', VideoSchema);
