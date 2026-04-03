@@ -60,10 +60,10 @@ export function NewVideoPopup({ href }: NewVideoPopupProps) {
 
           <div className="relative z-10">
             <h2 className="mt-3 text-[1.65rem] font-black tracking-tight text-slate-900 sm:text-[1.8rem]">
-              כולם גנבים
+              כולם גנבים - 30 דק'
             </h2>
             <p className="mt-2 text-sm leading-6 text-slate-600 sm:text-base">
-              שיעור חדש עלה לאתר.{" "}
+              שיעור חדש עלה עכשיו לאתר ואפשר לעבור אליו ישירות מכאן.
             </p>
           </div>
 
@@ -79,7 +79,7 @@ export function NewVideoPopup({ href }: NewVideoPopupProps) {
               onClick={() => setOpen(false)}
               className="inline-flex min-w-[190px] items-center justify-center rounded-2xl border border-slate-200/80 bg-white/80 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
             >
-              יותר מאוחר{" "}
+              יותר מאוחר
             </button>
           </div>
         </div>
