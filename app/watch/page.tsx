@@ -216,20 +216,34 @@ function WatchContent() {
                     <div className="aspect-[4/5] relative overflow-hidden rounded-[1.2rem]">
                       {/* רקע מטושטש */}
                       <video
-                        className="absolute inset-0 w-full h-full object-cover blur-xl scale-110"
+                        className="pointer-events-none absolute inset-0 h-full w-full scale-110 object-cover blur-xl"
                         src={video.previewUrl}
                         muted
                         autoPlay
                         loop
+                        playsInline
+                        preload="metadata"
+                        controls={false}
+                        disablePictureInPicture
+                        disableRemotePlayback
+                        tabIndex={-1}
+                        aria-hidden="true"
                       />
 
                       {/* וידאו אמיתי */}
                       <video
-                        className="relative w-full h-full object-contain"
+                        className="pointer-events-none relative h-full w-full object-contain"
                         src={video.previewUrl}
                         muted
                         autoPlay
                         loop
+                        playsInline
+                        preload="metadata"
+                        controls={false}
+                        disablePictureInPicture
+                        disableRemotePlayback
+                        tabIndex={-1}
+                        aria-hidden="true"
                       />
                     </div>{" "}
                   </div>
