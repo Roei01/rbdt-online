@@ -67,13 +67,47 @@ const extractWebhookOrderId = (body: Record<string, any>) =>
     body?.custom ||
       body?.orderId ||
       body?.reference ||
+      body?.external_data ||
       body?.description ||
       body?.data?.custom ||
       body?.data?.orderId ||
       body?.data?.reference ||
+      body?.data?.external_data ||
       body?.payload?.custom ||
-      body?.payload?.orderId,
+      body?.payload?.orderId ||
+      body?.payload?.external_data,
   );
+
+const extractWebhookPaymentIds = (body: Record<string, any>) => {
+  const rawCandidates = [
+    body?.paymentId,
+    body?.transaction_id,
+    body?.productId,
+    body?.transactions?.[0]?.id,
+    body?.data?.paymentId,
+    body?.data?.transaction_id,
+    body?.payload?.paymentId,
+    body?.payload?.transaction_id,
+    body?.id,
+    body?.data?.id,
+    body?.payload?.id,
+  ];
+
+  const seen = new Set<string>();
+  const paymentIds: string[] = [];
+
+  for (const candidate of rawCandidates) {
+    const normalized = normalizeString(candidate);
+    if (!normalized || seen.has(normalized)) {
+      continue;
+    }
+
+    seen.add(normalized);
+    paymentIds.push(normalized);
+  }
+
+  return paymentIds;
+};
 
 const extractWebhookEvent = (body: Record<string, any>) =>
   body?.event ||
@@ -154,6 +188,17 @@ const normalizeWebhookStatus = (body: Record<string, any>) => {
     return "completed";
   }
 
+  if (
+    normalizeString(body?.transaction_id) &&
+    normalizeString(
+      body?.external_data ||
+        body?.data?.external_data ||
+        body?.payload?.external_data,
+    )
+  ) {
+    return "completed";
+  }
+
   return undefined;
 };
 
@@ -161,11 +206,11 @@ const reqBodyHasTransactions = (body: Record<string, any>) =>
   Array.isArray(body?.transactions) && body.transactions.length > 0;
 
 const findPurchaseForWebhook = async (
-  paymentId?: string,
+  paymentIds: string[],
   orderId?: string,
   payerEmail?: string,
 ) => {
-  if (paymentId) {
+  for (const paymentId of paymentIds) {
     const purchaseByPaymentId = await Purchase.findOne({ paymentId });
     if (purchaseByPaymentId) {
       return purchaseByPaymentId;
@@ -335,16 +380,8 @@ router.post("/webhook", async (req, res) => {
   const orderId = extractWebhookOrderId(req.body);
   const event = extractWebhookEvent(req.body);
   const payerEmail = extractWebhookEmail(req.body);
-  const paymentId = normalizeString(
-    req.body?.paymentId ||
-      req.body?.id ||
-      req.body?.productId ||
-      req.body?.transactions?.[0]?.id ||
-      req.body?.data?.id ||
-      req.body?.data?.paymentId ||
-      req.body?.payload?.id ||
-      req.body?.payload?.paymentId,
-  );
+  const paymentIds = extractWebhookPaymentIds(req.body);
+  const paymentId = paymentIds[0];
 
   const status = normalizeWebhookStatus(req.body);
 
@@ -358,6 +395,7 @@ router.post("/webhook", async (req, res) => {
   });
   console.log("WEBHOOK_NORMALIZED", {
     paymentId,
+    paymentIds,
     orderId,
     event,
     payerEmail,
@@ -371,7 +409,7 @@ router.post("/webhook", async (req, res) => {
     paymentId.startsWith("mock_")
   ) {
     const mockPurchase = await findPurchaseForWebhook(
-      paymentId,
+      paymentIds,
       orderId,
       payerEmail,
     );
@@ -420,9 +458,10 @@ router.post("/webhook", async (req, res) => {
     });
   }
 
-  const purchase = await findPurchaseForWebhook(paymentId, orderId, payerEmail);
+  const purchase = await findPurchaseForWebhook(paymentIds, orderId, payerEmail);
   console.log("WEBHOOK_PURCHASE_LOOKUP_RESULT", {
     paymentId,
+    paymentIds,
     orderId,
     payerEmail,
     status,
