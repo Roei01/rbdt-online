@@ -258,7 +258,7 @@ function WatchContent() {
                       {video.description}
                     </p>
                     <p className="font-display text-sm font-bold uppercase tracking-[0.14em] text-emerald-600">
-                      זמין לצפייה
+                      לחץ לצפיה
                     </p>
                   </div>
                 </Link>
