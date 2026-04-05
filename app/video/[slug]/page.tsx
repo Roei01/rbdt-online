@@ -78,6 +78,11 @@ export default function VideoPage({ params }: VideoPageProps) {
   const headlineDescription = video.description
     .replace(/מודרני\s+פיוז['׳]?ן\s*/g, "")
     .trim();
+  const videoDuration =
+    video.title
+      .match(/[-–—]\s*(.+)$/)?.[1]
+      ?.replace(/(\d)([א-ת])/g, "$1 $2")
+      .trim() ?? "";
 
   return (
     <main
@@ -104,15 +109,21 @@ export default function VideoPage({ params }: VideoPageProps) {
             <div className="space-y-6">
               <div className="space-y-4">
                 <p className="text-xs font-bold uppercase tracking-[0.24em] text-slate-400">
-                  מודרני פיוז'ן
+                  מודרני פיוז'ן עם רותם ברוך
                 </p>
 
                 <h1 className="max-w-3xl text-[clamp(2rem,6vw,4.5rem)] font-black leading-[1.02] tracking-[-0.04em] text-slate-900">
                   <span className="block"> {headlineDescription}</span>
                   <span className="mt-2 block text-[0.82em] leading-[1.08] text-slate-700">
-                    {video.level}{" "}
+                    {video.level}
                   </span>
+                  {videoDuration ? (
+                    <span className="mt-2 block text-[0.62em] leading-[1.08] text-slate-500">
+                      {videoDuration}
+                    </span>
+                  ) : null}
                 </h1>
+
                 <p className="max-w-xl text-lg font-medium leading-6 text-slate-600">
                   כדי לצפות בקומבו לחצו ״לצפייה״
                   <br />
